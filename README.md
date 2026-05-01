@@ -10,7 +10,7 @@
 
 Reverse101 | Fullstack | CyberSec
 
-- 🧵 **Telegram**: [@SurprseMTFK](https://t.me/@SurprseMTFK)  
-- 💬 **Discord**: `kwafeltz`
+- 🧵 **Telegram**: [@Ap0dexMe0](https://t.me/Ap0dexMe0)
+- 💬 **Discord**: [kwafeltz](https://discord.com/users/829404192585678858)
 
 <!-- Proudly created with GPRM ( https://gprm.itsvg.in ) -->
