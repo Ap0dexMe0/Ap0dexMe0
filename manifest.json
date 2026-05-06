@@ -1,0 +1,28 @@
+{
+  "structure": {
+    "android": [],
+    "linux": [
+      "Almost-Impossible.md",
+      "Brain-Fuck.md",
+      "DebugMe.md"
+    ],
+    "poc": [],
+    "windows": [
+      "Crack-Me-Pls.md",
+      "CrackMe-By-ZenithSouu.md",
+      "Find-The-Key.md",
+      "KeyGenMe.md",
+      "TenzoCrackme.md",
+      "VM-Rust.md",
+      "Yippie-Ki-Yay.md",
+      "MCM7.md",
+      "Spaghetti.md"
+    ]
+  },
+  "directories": [
+    "android",
+    "linux",
+    "poc",
+    "windows"
+  ]
+}
