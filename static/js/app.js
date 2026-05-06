@@ -532,28 +532,9 @@ function syncFilterPills(filter) {
   });
 }
 
-/* --- ROUTING & 404 HANDLING --- */
-
-function handleInvalidRoute() {
-  var path = window.location.pathname;
-  var validPaths = ['/', '/index.html'];
-  var knownDirs = ['/content/', '/static/', '/static/css/', '/static/js/', '/static/img/', '/scripts/', '/sitemap.xml', '/robots.txt', '/manifest.json'];
-
-  if (validPaths.includes(path)) return;
-
-  for (var i = 0; i < knownDirs.length; i++) {
-    if (path.startsWith(knownDirs[i])) return;
-  }
-
-  if (!path.includes('404.html')) {
-    window.location.replace('/404.html');
-  }
-}
-
 /* --- INIT --- */
 
 async function init() {
-  handleInvalidRoute();
   initTheme();
 
   FS = await loadFS();
