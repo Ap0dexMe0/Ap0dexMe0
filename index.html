@@ -5,40 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Ap0dexMe0 reverse engineering writeups loaded from local markdown content.">
     <title>Ap0dexMe0 — Reverse Engineering Writeups</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <link rel="stylesheet" href="static/css/style.css?v=writeup-layout-3">
+    <link rel="stylesheet" href="static/css/tailwind.css?v=2">
+    <link rel="stylesheet" href="static/css/style.css?v=toc-icon-transparent-1">
 </head>
-<body>
+<body class="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans antialiased">
 
     <!-- ═══════════════ NAVBAR ═══════════════ -->
-    <nav class="navbar">
+    <nav class="navbar sticky top-0 z-[100] flex h-[52px] items-center justify-between border-b border-[var(--border)] bg-[rgba(10,12,15,0.8)] px-6 backdrop-blur-xl backdrop-saturate-150">
         <a href="#" class="logo">
-            <span class="bracket">[</span>Ap0dexMe0<span class="slash">/</span>writeups<span class="bracket">]</span>
+            <span class="bracket">[</span>Ap0dexMe0<span class="bracket">]</span>
         </a>
-        <ul class="nav-links">
-            <li><a href="#" class="active">Write-ups</a></li>
-            <li><a href="#">Archive</a></li>
-            <li><a href="#">Tools</a></li>
-            <li><a href="#">About</a></li>
-        </ul>
-        <div class="nav-status">
-            <span class="dot"></span> content live
-        </div>
     </nav>
 
     <!-- ═══════════════ LAYOUT ═══════════════ -->
-    <div class="layout">
+    <div class="layout flex max-w-[1500px] mx-auto gap-8 px-6 pb-12 pt-6">
 
         <!-- ── SIDEBAR / TABLE OF CONTENTS ── -->
-        <aside class="sidebar" id="sidebar">
-            <span class="toc-title">📑 Writeups</span>
-            <ul id="writeupList">
-                <li><a href="#" class="toc-link toc-active">Loading content...</a></li>
+        <aside class="sidebar sticky top-[72px] w-[260px] shrink-0 self-start max-h-[calc(100vh-90px)] overflow-y-auto" id="sidebar">
+            <div class="toc-sidebar-head">
+                <span class="toc-title">Categories</span>
+            </div>
+            <ul id="writeupList" class="toc-accordion-root" role="list">
+                <li class="toc-accordion-item is-open" data-category="linux">
+                    <button type="button" class="toc-accordion-trigger" aria-expanded="true" aria-controls="toc-panel-linux" id="toc-trigger-linux">
+                        <span class="toc-trigger-icon toc-trigger-icon-linux" aria-hidden="true"></span>
+                        <span class="toc-trigger-label">Linux</span>
+                        <span class="toc-trigger-count" data-count-for="linux">·</span>
+                        <span class="toc-chevron" aria-hidden="true"></span>
+                    </button>
+                    <div class="toc-accordion-panel" id="toc-panel-linux" role="region" aria-labelledby="toc-trigger-linux">
+                        <div class="toc-accordion-panel-inner">
+                            <ul class="toc-accordion-links"></ul>
+                        </div>
+                    </div>
+                </li>
+                <li class="toc-accordion-item" data-category="windows">
+                    <button type="button" class="toc-accordion-trigger" aria-expanded="false" aria-controls="toc-panel-windows" id="toc-trigger-windows">
+                        <span class="toc-trigger-icon toc-trigger-icon-windows" aria-hidden="true"></span>
+                        <span class="toc-trigger-label">Windows</span>
+                        <span class="toc-trigger-count" data-count-for="windows">·</span>
+                        <span class="toc-chevron" aria-hidden="true"></span>
+                    </button>
+                    <div class="toc-accordion-panel" id="toc-panel-windows" role="region" aria-labelledby="toc-trigger-windows">
+                        <div class="toc-accordion-panel-inner">
+                            <ul class="toc-accordion-links"></ul>
+                        </div>
+                    </div>
+                </li>
             </ul>
         </aside>
 
         <!-- ── MAIN CONTENT ── -->
-        <main class="main-content" id="mainContent">
+        <main class="main-content flex-1 min-w-0 max-w-[980px]" id="mainContent">
 
             <!-- ═══ HEADER ═══ -->
             <header class="writeup-header">
@@ -371,6 +393,6 @@
 
 <!-- ═══════════════ SCRIPTS ═══════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="static/js/script.js?v=content-loader-3"></script>
+<script src="static/js/script.js?v=content-enter-1"></script>
 </body>
 </html>

@@ -4,6 +4,22 @@
     const mainContent = document.getElementById('mainContent');
     let writeups = [];
 
+    function triggerMainContentEnter() {
+        mainContent.classList.remove('content-mounted');
+        void mainContent.offsetWidth;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                mainContent.classList.add('content-mounted');
+                const md = mainContent.querySelector('.markdown-body');
+                if (md) {
+                    md.classList.remove('markdown-stagger-active');
+                    void md.offsetWidth;
+                    requestAnimationFrame(() => md.classList.add('markdown-stagger-active'));
+                }
+            });
+        });
+    }
+
     const escapeHtml = value => String(value)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -175,9 +191,12 @@
         return blocks.join('\n');
     }
 
+    const SIDEBAR_CATEGORIES = ['linux', 'windows'];
+
     function flattenManifest(manifest) {
-        return Object.entries(manifest.structure || {}).flatMap(([category, files]) =>
-            files
+        const structure = manifest.structure || {};
+        return SIDEBAR_CATEGORIES.flatMap(category =>
+            (structure[category] || [])
                 .filter(file => /\.md$/i.test(file))
                 .map(file => ({
                     category,
@@ -190,27 +209,64 @@
     }
 
     function renderSidebar() {
-        const grouped = writeups.reduce((groups, item) => {
-            groups[item.category] = groups[item.category] || [];
-            groups[item.category].push(item);
-            return groups;
-        }, {});
+        SIDEBAR_CATEGORIES.forEach(category => {
+            const items = writeups.filter(w => w.category === category);
+            const root = document.getElementById('writeupList');
+            const itemEl = root.querySelector(`.toc-accordion-item[data-category="${category}"]`);
+            if (!itemEl) return;
 
-        writeupList.innerHTML = Object.entries(grouped).map(([category, items]) => `
-            <li class="writeup-category">${escapeHtml(category)}</li>
-            ${items.map(item => `
-                <li>
-                    <a href="#${encodeURIComponent(item.hash)}" class="toc-link writeup-link" data-path="${escapeHtml(item.hash)}">
-                        ${escapeHtml(item.title)}
-                    </a>
-                </li>
-            `).join('')}
-        `).join('');
+            const linksUl = itemEl.querySelector('.toc-accordion-links');
+            const countEl = itemEl.querySelector('.toc-trigger-count');
+            if (countEl) {
+                countEl.textContent = String(items.length);
+            }
+
+            if (!linksUl) return;
+
+            linksUl.innerHTML = items.length
+                ? items.map(writeupItem => `
+                    <li>
+                        <a href="#${encodeURIComponent(writeupItem.hash)}" class="toc-link writeup-link" data-path="${escapeHtml(writeupItem.hash)}">
+                            ${escapeHtml(writeupItem.title)}
+                        </a>
+                    </li>
+                `).join('')
+                : '<li class="toc-empty"><span class="toc-empty-label">No writeups yet</span></li>';
+        });
+        writeupList.classList.add('rendered');
+    }
+
+    function syncAccordionForPath(path) {
+        const entry = writeups.find(w => w.hash === path);
+        if (!entry) return;
+
+        const itemEl = writeupList.querySelector(`.toc-accordion-item[data-category="${entry.category}"]`);
+        if (!itemEl) return;
+
+        itemEl.classList.add('is-open');
+        const btn = itemEl.querySelector('.toc-accordion-trigger');
+        if (btn) btn.setAttribute('aria-expanded', 'true');
     }
 
     function setActive(path) {
         document.querySelectorAll('.writeup-link').forEach(link => {
             link.classList.toggle('toc-active', link.dataset.path === path);
+        });
+        syncAccordionForPath(path);
+    }
+
+    function bindSidebarAccordion() {
+        writeupList.addEventListener('click', event => {
+            const trigger = event.target.closest('.toc-accordion-trigger');
+            if (!trigger) return;
+
+            event.preventDefault();
+            const item = trigger.closest('.toc-accordion-item');
+            if (!item) return;
+
+            item.classList.toggle('is-open');
+            const expanded = item.classList.contains('is-open');
+            trigger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         });
     }
 
@@ -230,6 +286,7 @@
                 </div>
             </section>
         `;
+        triggerMainContentEnter();
     }
 
     async function loadWriteup(path) {
@@ -276,6 +333,7 @@
                 </footer>
             `;
             highlightRenderedCode();
+            triggerMainContentEnter();
         } catch (error) {
             mainContent.innerHTML = `
                 <section class="section">
@@ -291,6 +349,7 @@
                     </div>
                 </section>
             `;
+            triggerMainContentEnter();
         }
     }
 
@@ -302,9 +361,10 @@
             const manifest = await response.json();
             writeups = flattenManifest(manifest);
             renderSidebar();
+            bindSidebarAccordion();
             await loadWriteup(getHashPath() || (writeups[0] && writeups[0].hash));
         } catch (error) {
-            writeupList.innerHTML = '<li><a href="#" class="toc-link toc-active">Content unavailable</a></li>';
+            writeupList.innerHTML = '<li class="toc-manifest-error">Unable to load manifest.</li>';
             mainContent.innerHTML = `
                 <section class="section">
                     <div class="section-header">
@@ -316,6 +376,7 @@
                     </div>
                 </section>
             `;
+            triggerMainContentEnter();
         }
     }
 
