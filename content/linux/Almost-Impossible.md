@@ -1,7 +1,5 @@
 # Almost Impossible — Reverse Engineering Writeup
 
----
-
 ## TL;DR
 
 - **Goal:** Supply a PNG whose QR payload matches a per-run EC target; two independent checks must pass.

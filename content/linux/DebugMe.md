@@ -1,9 +1,5 @@
 # DebugMe — Reverse Engineering Writeup
 
-Linux **64-bit ELF PIE** crackme using **SIGFPE** and **`/proc/self/status`** (`TracerPid`) for staged anti-debug. Solution combines runtime **`LD_PRELOAD`** hooking with a fixed **`argv[1]`** argument.
-
----
-
 ## TL;DR
 
 - **Goal:** Pass three stages and print `Well done :)`.

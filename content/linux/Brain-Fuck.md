@@ -1,9 +1,5 @@
 # Brain-Fuck — Reverse Engineering Writeup
 
-This writeup documents a large **x86-64 Linux** binary whose `main` is a massive obfuscated **Brainfuck**-style interpreter: the password check is hidden in tens of thousands of generated instructions. Analysis uses disassembly and pattern recognition (stack layout, `usleep`/`getpid` noise, tape model).
-
----
-
 ## TL;DR
 
 - **Flag (password):** `bruh wtf`
