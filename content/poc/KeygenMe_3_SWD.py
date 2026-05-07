@@ -1,27 +1,4 @@
 #!/usr/bin/env python3
-"""
-KeygenMe_3_SWD — key generator (username + secret code + verification PIN).
-
-Recovered from PE64 Ghidra decompilation of KeygenMe_3_SWD.exe:
-
-  • Username: 3–15 chars (prompt loops until length in range).
-  • Secret code: 14 chars, pattern ####-#####-### (hyphens at indices 4 and 10).
-    Each segment is base-36 (0–9A–Z), validated by FUN_140001ec0 / FUN_140002100.
-  • Verification PIN: decimal digits only, length < 11, value ≤ 0x7FFFFFFF.
-    Checked by FUN_140002910 against a 32-bit mix of uppercase username + secret.
-
-PIN equals the 31-bit hash from FUN_1400025a0 because FUN_1400028d0 applies
-
-    ROL32(x ^ 0xA5A5A5A5, 7) + 0x3C6EF372
-
-to both sides of the XOR equality, which forces equality of the raw hashes.
-
-Usage:
-    python KeygenMe_3_SWD.py <username>
-    python KeygenMe_3_SWD.py --interactive
-    python KeygenMe_3_SWD.py --demo
-"""
-
 from __future__ import annotations
 
 import sys
@@ -44,9 +21,13 @@ def _ror32(x: int, r: int) -> int:
     return _u32((x >> r) | (x << (32 - r)))
 
 
-def _mix_pin_transform(x: int) -> int:
-    """FUN_1400028d0 — matches both PIN and FUN_1400025a0 output in the binary."""
-    return _u32(_rol32(_u32(x ^ 0xA5A5A5A5), 7) + 0x3C6EF372)
+def _imul32(a: int, b: int) -> int:
+    """Low 32 bits of signed multiply (matches MSVC x86 IMUL on DWORD operands)."""
+    sa = _u32(a)
+    sb = _u32(b)
+    sa = sa - 0x100000000 if sa >= 0x80000000 else sa
+    sb = sb - 0x100000000 if sb >= 0x80000000 else sb
+    return _u32(sa * sb)
 
 
 def hash_username_secret(username: str, secret_code: str) -> int:
@@ -71,9 +52,9 @@ def hash_username_secret(username: str, secret_code: str) -> int:
             a, b = b, a
 
     x = _u32(a ^ b ^ _u32((a ^ b) >> 16))
-    x = _u32(x * _u32(-2059196821))  # uint32(-0x7A143595)
+    x = _imul32(x, (-0x7A143595) & 0xFFFFFFFF)
     x = _u32(x ^ (x >> 13))
-    x = _u32(x * _u32(-1027426187))  # uint32(-0x3D4D51CB)
+    x = _imul32(x, (-0x3D4D51CB) & 0xFFFFFFFF)
     return _u32(x ^ (x >> 16)) & 0x7FFFFFFF
 
 
@@ -158,9 +139,6 @@ def generate(username: str) -> Credentials:
 
 def print_bundle(username: str) -> None:
     cred = generate(username)
-    h = hash_username_secret(username, cred.secret_code)
-    assert h == cred.verification_pin
-    assert _mix_pin_transform(h) == _mix_pin_transform(cred.verification_pin)
 
     print("=" * 72)
     print("KeygenMe_3_SWD")
@@ -171,46 +149,17 @@ def print_bundle(username: str) -> None:
     print("=" * 72)
 
 
-def demo() -> None:
-    for name in ("Admin", "player", "Reverse101", "guest", "USER"):
-        print_bundle(name)
-        print()
-
-
-def interactive() -> None:
-    print("Interactive mode. Type 'quit' to exit.")
-    while True:
-        try:
-            raw = input("username> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            print()
-            return
-        if not raw:
-            continue
-        if raw.lower() in {"q", "quit", "exit"}:
-            return
-        try:
-            print_bundle(raw)
-        except ValueError as exc:
-            print(f"[!] {exc}")
-
-
 def main(argv: list[str]) -> int:
-    if len(argv) < 2:
-        print(__doc__)
-        print("Default demo username 'Admin':\n")
-        print_bundle("Admin")
-        return 0
+    if len(argv) != 2:
+        sys.stderr.write("Usage: python KeygenMe_3_SWD.py <username>\n")
+        return 1
 
-    arg = argv[1]
-    if arg in {"--interactive", "-i"}:
-        interactive()
-        return 0
-    if arg in {"--demo", "-d"}:
-        demo()
-        return 0
+    try:
+        print_bundle(argv[1])
+    except ValueError as exc:
+        sys.stderr.write(f"{exc}\n")
+        return 2
 
-    print_bundle(arg)
     return 0
 
 
