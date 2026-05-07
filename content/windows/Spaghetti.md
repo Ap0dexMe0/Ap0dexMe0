@@ -1,24 +1,20 @@
 # Spaghetti CrackMe — Reverse Engineering Writeup
 
+
+## TL;DR
+
+- **Flow:** UPX unpack → TLS traps → decode strings → VM interprets checks → hashed password compare.
+- **Techniques:** Standard packer triage plus VM opcode recovery.
+
 ---
 
-## 1 · Initial Triage
-
-| Property | Value |
-|---|---|
-| File size | 673,294 bytes (657.5 KB) |
-| MD5 | `871ea4cdf821afb27e419dc4ed8ee3e6` |
-| SHA-256 | `f80f946a259c2f011d62aac015e24c569dbcf09716d503cf5c3a2f62e125547a` |
-| Magic | `MZ` — valid DOS/PE header |
-| Machine | `x86-64` (64-bit) |
-| Subsystem | Windows Console |
-| Entry Point | `0x140360BE0` |
+## 1. Overview
 
 The first two bytes (`4D 5A`) confirm a valid Windows PE executable. The PE header at offset `0x80` shows a 64-bit console application with 3 sections.
 
 ---
 
-## 2 · Unpacking — UPX Layer
+## 2. Unpacking — UPX layer
 
 Examining the section table reveals the telltale UPX section names:
 
@@ -55,7 +51,7 @@ After unpacking, the real section layout appears:
 
 ---
 
-## 3 · Anti-Debug: TLS Callbacks
+## 3. Anti-debug: TLS callbacks
 
 The binary contains a **TLS (Thread Local Storage) callback** at address `0x14010DD40`. TLS callbacks execute before the main entry point and are commonly used for anti-debugging:
 
@@ -69,7 +65,7 @@ In a live debugging scenario, the TLS callback would need to be bypassed (e.g., 
 
 ---
 
-## 4 · Import Analysis
+## 4. Import analysis
 
 The unpacked binary imports from `KERNEL32.DLL` and the Universal CRT:
 
@@ -93,7 +89,7 @@ The binary is compiled with **MinGW-w64** (identified via runtime strings like `
 
 ---
 
-## 5 · String Extraction & XOR Decoding
+## 5. String extraction & XOR decoding
 
 ### 5.1 The Banner (XOR key `0x42`)
 
@@ -153,7 +149,7 @@ The string table at file offsets `0x10B530`–`0x10B900` contains password-trigg
 
 ---
 
-## 6 · The Custom VM — Architecture Deep Dive
+## 6. The custom VM — architecture deep dive
 
 ### 6.1 VM Interpreter Structure
 
@@ -199,7 +195,7 @@ The VM reads input **one character at a time** via `ReadFile`, and uses `WriteFi
 
 ---
 
-## 7 · Password Validation — Hash-Based Comparison
+## 7. Password validation — hash-based comparison
 
 ### 7.1 Why `strncmp` Is a Red Herring
 
@@ -236,7 +232,7 @@ Congrats. You found the meatball. Here's your flag. Respect.
 
 ---
 
-## 8 · Protection Summary & Bypass Techniques
+## 8. Protection summary & bypass techniques
 
 | Layer | Protection | Bypass |
 |---|---|---|
@@ -249,7 +245,7 @@ Congrats. You found the meatball. Here's your flag. Respect.
 
 ---
 
-## 9 · Tools Used
+## 9. Tools used
 
 | Tool | Purpose |
 |---|---|
@@ -261,7 +257,7 @@ Congrats. You found the meatball. Here's your flag. Respect.
 
 ---
 
-## 10 · Key Takeaways
+## 10. Key takeaways
 
 1. **Read the hints.** The banner literally says *"One meatball to find"* — the answer was always in plain sight (behind XOR `0x42`).
 2. **Not all imports are used.** `strncmp` was imported but the real validation used a VM-internal hash. Don't assume the obvious API is the one being used.
@@ -270,3 +266,8 @@ Congrats. You found the meatball. Here's your flag. Respect.
 5. **VM protection adds complexity, not security.** The 237-byte bytecode program and 56-opcode instruction set look intimidating, but the hash algorithm inside is simple. The real challenge is understanding the VM architecture well enough to trace it.
 
 ---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
+

@@ -1,13 +1,21 @@
 # TenzoCrackme — Reverse Engineering Writeup
 
-**Target:** `TenzoCrackme.exe` (PE32+, x86-64, console)
-**Goal:** find the one valid password that triggers the success branch.
-**Result:** `wowyoufoundit`
-**Approach:** static analysis only — no debugger, no instrumentation, no brute force. The verification routine is reverse-engineered, the decoy parts identified, and the meaningful checks inverted directly.
+
+## TL;DR
+
+- **Password:** `wowyoufoundit`
+- **Approach:** Pure static analysis — decode stack blobs with the documented XOR/key recurrence, then invert the byte checks / state machine.
+- **Anti-debug:** `IsDebuggerPresent` / `CheckRemoteDebuggerPresent` clustered near `main` — informational for static work.
 
 ---
 
-## 1. Initial recon
+## 1. Overview
+
+The binary hides prompts and messages behind a small **stack-built XOR decoder** (see §3). **`main`** performs anti-debug checks, decodes strings, reads a password, and runs a **multi-step verifier** with both real constraints and decoy branches. The unique satisfying password is **`wowyoufoundit`** under the modeled checks.
+
+---
+
+## 2. Initial recon
 
 Basic file properties:
 
@@ -29,7 +37,7 @@ Cross-referencing the IAT entries against the disassembly gives the call sites f
 
 ---
 
-## 2. The string decoder
+## 3. The string decoder
 
 The very first thing `main` does is build a 19-byte blob on the stack from immediates and pass it to `0x140002EB0`:
 
@@ -91,7 +99,7 @@ The decoder is correct and the entire UI surface is now mapped.
 
 ---
 
-## 3. Antidebug
+## 4. Antidebug
 
 Right after printing the prompt and reading `cin` into a `std::string`, three checks fire:
 
@@ -121,7 +129,7 @@ Three independent debugger checks: the API, the remote-debugger API, and the PEB
 
 ---
 
-## 4. The verification flow
+## 5. The verification flow
 
 After the prompt is printed and the line is read, `main` runs four logical "checks" in sequence. Three of them matter; one is a decoy. From `0x140003FFD` onwards:
 
@@ -142,7 +150,7 @@ The real checks are:
 2. **Per-byte XOR/rotate accumulator** must reach 0 (loop at `0x140004106`–`0x1400041B6`).
 3. **Full state-mixing function** at `0x140003920` must return true.
 
-### 4.1 Per-byte check
+### 5.1 Per-byte check
 
 A small hand-rolled state machine dispatches on `eax` ∈ {`0x41`, `0x52`/`0x53`, `0x68`}. Stripping the dispatch noise, each round does:
 
@@ -179,7 +187,7 @@ wowyoufoundit
 
 That is enough to commit to a candidate. The next stage independently re-validates it.
 
-### 4.2 The state-mixing check (`0x140003920`)
+### 5.2 The state-mixing check (`0x140003920`)
 
 This is a longer, more elaborate routine. Pseudocode of the full function:
 
@@ -256,7 +264,7 @@ uint32_t hash_final(const std::string& s) {
 
 This stage is **not** trivially invertible — Phase 2 alone runs 24 rounds of state mixing with no input dependency, but Phase 1 and the final-hash step entangle every input byte with all four state words. There's no clean per-byte algebra here.
 
-The right play is to treat this as a **secondary verifier** rather than a solver target: the per-byte check in §4.1 already pins the password to a unique 13-byte string, so the only thing left to do is run the state-mix simulation on that candidate and confirm it lands on the target.
+The right play is to treat this as a **secondary verifier** rather than a solver target: the per-byte check in §5.1 already pins the password to a unique 13-byte string, so the only thing left to do is run the state-mix simulation on that candidate and confirm it lands on the target.
 
 Running the simulation in Python with the candidate `b"wowyoufoundit"` yields:
 
@@ -273,7 +281,7 @@ All four 32-bit words match. Hitting all 128 bits by accident has probability `2
 
 ---
 
-## 5. Why the design works as a crackme
+## 6. Why the design works as a crackme
 
 Looking at it as a whole, the binary uses three layered tactics:
 
@@ -285,7 +293,7 @@ What ultimately breaks the design is the per-byte check being algebraically clea
 
 ---
 
-## 6. Final answer
+## 7. Final answer
 
 ```
 wowyoufoundit
@@ -314,3 +322,10 @@ Re-running every check against the candidate:
 
 SUCCESS — password is: wowyoufoundit
 ```
+
+---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
+

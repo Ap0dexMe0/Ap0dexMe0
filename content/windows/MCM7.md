@@ -1,15 +1,14 @@
 # MCM v7.0 — Reverse Engineering Writeup
 
-**Target:** CrackMe_packed.exe  
-**Author:** @pwn.by (Discord) — [pwned.space](https://pwned.space/)  
-**Challenge:** MCM v7.0 (Malware CrackMe)  
-**Difficulty:** Hard  
-**Tools Used:** Python, Capstone (disassembler), Unicorn Engine (CPU emulator)  
-**Approach:** Fully automated — no Windows machine or debugger required
+
+## TL;DR
+
+- **Key:** `MCM_SUCK_1_Su_3_ck_3_Suck_7` (inner payload validation chain).
+- **Technique:** Dynamic API hashing + emulated decrypt of ~421 KB inner PE after tens of millions of instructions.
 
 ---
 
-## 1. Executive Summary
+## 1. Overview
 
 MCM v7.0 is a heavily obfuscated 64-bit Windows console crackme featuring **six layers of protection**: FNV-1a API hashing, an XOR state machine, seven anti-debug gates, control flow flattening with ~61K cases, a three-layer encryption pipeline (block cipher + XOR + PRNG-seeded Fisher-Yates shuffle), and decoy PE sections. The actual crackme logic is hidden inside a **421KB encrypted embedded PE** within the `.data` section, only decrypted at runtime.
 
@@ -17,7 +16,7 @@ Using a custom Unicorn Engine emulator with hooked API resolvers and a clean LCG
 
 ---
 
-## 2. Binary Identification
+## 2. Binary identification
 
 | Property | Value |
 |---|---|
@@ -37,7 +36,7 @@ Using a custom Unicorn Engine emulator with hooked API resolvers and a clean LCG
 
 ---
 
-## 3. PE Section Analysis
+## 3. PE section analysis
 
 The binary contains **13 sections** — significantly more than typical executables.
 
@@ -65,7 +64,7 @@ The binary contains **13 sections** — significantly more than typical executab
 
 ---
 
-## 4. Obfuscation Layer 1: API Hashing via PEB Walking
+## 4. Obfuscation layer 1: API hashing via PEB walking
 
 All 11 API resolver functions share an identical structure:
 
@@ -111,7 +110,7 @@ Notable: **No I/O APIs** (no `ReadConsoleW`, `WriteConsoleW`, `scanf`, `printf`)
 
 ---
 
-## 5. Obfuscation Layer 2: XOR State Machine
+## 5. Obfuscation layer 2: XOR state machine
 
 The entry point at `0x140008030` constructs a 64-bit "state variable" from 8 encrypted bytes on the stack:
 
@@ -134,7 +133,7 @@ Before the XOR chain, the entry point reads the first byte from each of the 8 de
 
 ---
 
-## 6. Obfuscation Layer 3: Anti-Debug / Anti-Analysis Gates
+## 6. Obfuscation layer 3: anti-debug / anti-analysis gates
 
 Seven gates sit between the XOR chain and the decryption routine. Each gate, if triggered, XORs the state variable with a corruption constant — silently breaking the decryption key without any visible error.
 
@@ -154,7 +153,7 @@ Gate 6 deserves special note: it computes `(PID XOR PID) + 2 = 2`, indexes into 
 
 ---
 
-## 7. Obfuscation Layer 4: Control Flow Flattening
+## 7. Obfuscation layer 4: control flow flattening
 
 After the anti-debug gates, the code enters a massive CFF dispatcher:
 
@@ -178,7 +177,7 @@ This structure obliterates the original control flow graph, making static analys
 
 ---
 
-## 8. Obfuscation Layer 5: Three-Layer Encryption Pipeline
+## 8. Obfuscation layer 5: three-layer encryption pipeline
 
 The decryption routine (reached via CFF case chain) is located at `0x1402A866F` and processes the entire `.data` section (0x66E00 = 421,376 bytes).
 
@@ -247,7 +246,7 @@ The PRNG also performs two `RDTSC` calls and checks the timing delta. If the del
 
 ---
 
-## 9. Automated Solver
+## 9. Automated solver
 
 Since the entire decryption pipeline is deterministic given the clean state value, I built a **Unicorn Engine-based emulator** that:
 
@@ -275,7 +274,7 @@ The decrypted payload is a complete **64-bit MSVC-compiled PE** with:
 
 ---
 
-## 10. Inner PE Analysis — The Actual Crackme
+## 10. Inner PE analysis — the actual crackme
 
 ### Program Messages
 
@@ -353,7 +352,7 @@ Stage 5: MCM_SUCK_1_Su_3_ck_3_Suck_7
 
 ---
 
-## 12. Protection Summary
+## 12. Protection summary
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -384,7 +383,7 @@ Stage 5: MCM_SUCK_1_Su_3_ck_3_Suck_7
 
 ---
 
-## 13. x64dbg Quick-Solve Reference
+## 13. x64dbg quick-solve reference
 
 For those who prefer a debugger-based approach:
 
@@ -413,3 +412,8 @@ savedata "decrypted_inner.exe", 0x1403AD000, 0x66E00
 ```
 
 ---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
+

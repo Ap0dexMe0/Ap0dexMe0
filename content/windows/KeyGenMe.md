@@ -1,22 +1,20 @@
 # KeyGenMe.exe — Reverse Engineering Writeup
 
+
+## TL;DR
+
+- **Seed:** Current Windows username via **`GetUserNameA`** (not arbitrary user input in-app).
+- **Pipeline:** Username → SHA-256 hex → **`key_transform`** → compare to typed key.
+
 ---
 
 ## 1. Overview
 
-| Property | Value |
-|---|---|
-| **Target** | `KeyGenMe.exe` |
-| **Type** | PE32+ (x86-64) Windows console application |
-| **Goal** | Create a KeyGen that generates valid "Identity Keys" for any given username |
-| **Difficulty** | Medium |
-| **Key Hint** | The key is dynamic, not static. The beginning of the dynamic key is hashed by SHA-256 |
-
-The binary prompts the user with `Enter Your Identify Key:` and validates the input against a dynamically computed value. A correct key displays `Good Job Brou!`, while an incorrect key displays `Wrong Key!`.
+The binary prompts with `Enter Your Identify Key:` and validates input against a dynamically computed value. A correct key displays `Good Job Brou!`, while an incorrect key displays `Wrong Key!`.
 
 ---
 
-## 2. Initial Reconnaissance
+## 2. Initial reconnaissance
 
 ### 2.1 File Identification
 
@@ -51,7 +49,7 @@ Key strings extracted from `.rdata`:
 
 ---
 
-## 3. Entry Point & Main Function
+## 3. Entry point & main function
 
 **Entry Point RVA:** `0x4800` (standard MSVC CRT entry)  
 **Main Function:** Located at `0x140001430`
@@ -91,7 +89,7 @@ main() at 0x140001430:
 
 ---
 
-## 4. Deep Analysis: The Hash Function
+## 4. Deep analysis: hash function
 
 ### 4.1 SHA-256 Verification
 
@@ -145,7 +143,7 @@ void hash_to_hex_string(
 
 ---
 
-## 5. Deep Analysis: The Key Transformation
+## 5. Deep analysis: key transformation
 
 This is the core of the challenge. After the SHA-256 hex string is generated, it undergoes a character-level transformation at `0x1400015D9–0x140001723`.
 
@@ -212,7 +210,7 @@ Digit characters (`0`–`9`) are completely removed from the output.
 
 ---
 
-## 6. Key Validation
+## 6. Key validation
 
 ### 6.1 Input Collection
 
@@ -244,7 +242,7 @@ The validation is strict:
 
 ---
 
-## 7. Complete Algorithm Summary
+## 7. Complete algorithm summary
 
 ```
 ┌──────────────────────────────────────────────────────────┐
@@ -273,7 +271,7 @@ The validation is strict:
 
 ---
 
-## 8. Proof-of-Concept KeyGen (Python)
+## 8. Proof-of-concept keygen (Python)
 
 ```python
 import hashlib
@@ -301,3 +299,8 @@ def generate_key(username: str) -> str:
 | `root` | `4813494d137e1631...` | `bcaaababaacaaaabcbccba` |
 
 ---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
+

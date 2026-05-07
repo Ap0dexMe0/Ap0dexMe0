@@ -1,16 +1,23 @@
 # DebugMe — Reverse Engineering Writeup
 
-## Overview
-
-**Target:** `DebugMe` — 64-bit ELF PIE executable, stripped, dynamically linked (GCC 15.2.1)
-**Goal:** Provide valid input that passes all three stages and prints `Well done :)`
-**Constraint:** No binary patching; no debugger register manipulation at runtime. Analysis via debugging is permitted, but the solution must stand alone.
-
-**Solution summary:** The binary uses intentional division-by-zero as a flow-control mechanism (SIGFPE → signal handler). The handler then checks anti-debug state a second time and validates `argv[1]`. Because the program requires `/proc/self/status` to report `TracerPid: 0` for stage 1 (to trigger the fault) but `TracerPid: <non-zero>` for stage 2 (to avoid a second, fatal fault), we supply a `LD_PRELOAD` shared library that overrides `fopen()` and returns different content for `/proc/self/status` on successive calls. The argument `1` matches the spoofed TracerPid in stage 3.
+Linux **64-bit ELF PIE** crackme using **SIGFPE** and **`/proc/self/status`** (`TracerPid`) for staged anti-debug. Solution combines runtime **`LD_PRELOAD`** hooking with a fixed **`argv[1]`** argument.
 
 ---
 
-## 1. Initial Reconnaissance
+## TL;DR
+
+- **Goal:** Pass three stages and print `Well done :)`.
+- **Technique:** `LD_PRELOAD` library returns different fake `/proc/self/status` content on successive `fopen` calls so **TracerPid** matches what each stage expects; **`argv[1]` = `1`** satisfies the final check.
+
+---
+
+## 1. Overview
+
+The binary uses intentional **division-by-zero** to trigger a **SIGFPE** handler. The handler re-checks tracer state and validates **`argv[1]`**. Stage 1 requires **`TracerPid: 0`** (fault path); stage 2 avoids a second fatal fault when **`TracerPid ≠ 0`**; stage 3 compares against the spoofed PID value. A small **`LD_PRELOAD`** shim feeds consistent fake procfs content across calls.
+
+---
+
+## 2. Initial reconnaissance
 
 ```
 $ file DebugMe
@@ -36,11 +43,11 @@ The presence of `/proc/self/status` + `TracerPid:` + `signal` immediately flags 
 
 ---
 
-## 2. Disassembly — Full Control-Flow Analysis
+## 3. Disassembly — full control-flow analysis
 
 The `.text` section is small (0x2D9 bytes) and contains three logical blocks: `main` (entry at `0x10e0`), a SIGFPE handler (at `0x1319`), and a `check_tracer_pid` helper (at `0x1259`). There is no custom code in `.init_array` or `.fini_array` — only standard CRT registration/deregistration stubs.
 
-### 2.1 `main` — Entry Point (`0x10e0`)
+### 3.1 `main` — Entry Point (`0x10e0`)
 
 ```asm
 10e0: push   rbp
@@ -91,7 +98,7 @@ The `.text` section is small (0x2D9 bytes) and contains three logical blocks: `m
 
 **Key observation:** The only way to reach the SIGFPE handler (which prints "Pass" and advances to stages 2 & 3) is for `TracerPid` to be **0**. A value of 1 passes the arithmetic check in `main` but skips the handler entirely — no "Well done" message is ever printed.
 
-### 2.2 SIGFPE Handler (`0x1319`)
+### 3.2 SIGFPE Handler (`0x1319`)
 
 ```asm
 ; --- Entered on SIGFPE (stage 1 trigger) ---
@@ -157,7 +164,7 @@ The `.text` section is small (0x2D9 bytes) and contains three logical blocks: `m
 
 The solution demands that `TracerPid` be **0 for the first read** (in `main`) and **a consistent non-zero value for the next two reads** (in the handler). This is inherently contradictory for a normal process, since `/proc/self/status` is a kernel-generated virtual file.
 
-### 2.3 `check_tracer_pid` Helper (`0x1259`)
+### 3.3 `check_tracer_pid` Helper (`0x1259`)
 
 ```asm
 1259: push   rbp
@@ -190,7 +197,7 @@ The function opens `/proc/self/status`, iterates over lines with `fgets`, matche
 
 ---
 
-## 3. Solution Design
+## 4. Solution design
 
 Since the binary calls `fopen` from `libc.so.6` through the PLT, we can intercept it with `LD_PRELOAD`. Our replacement `fopen` behaves as follows:
 
@@ -234,7 +241,7 @@ Well done :)
 
 ---
 
-## 4. Why Other Approaches Fail
+## 5. Why other approaches fail
 
 ### Running under GDB / strace
 If a debugger is attached, `TracerPid` is the debugger's PID (a large number like 123456). Then `67 / 123456 = 0 ≠ 67` → prints "Fail" immediately. The handler is never reached.
@@ -247,9 +254,9 @@ Without a debugger and without LD_PRELOAD, `TracerPid = 0`. The SIGFPE handler f
 
 ---
 
-## 5. Exploit Code
+## 6. Exploit code
 
-### 5.1 LD_PRELOAD Shared Library — `override_fopen.c`
+### 6.1 LD_PRELOAD Shared Library — `override_fopen.c`
 
 This is the core of the exploit. It overrides `fopen()` from libc so that every time the binary opens `/proc/self/status`, we hand it a fake in-memory file instead. The first call returns `TracerPid: 0` (triggering the division-by-zero in `main`), and all subsequent calls return `TracerPid: 1` (allowing the handler's `1/1` division to succeed). We use `dlsym(RTLD_NEXT, "fopen")` to chain to the real `fopen` for any other file the program (or the C runtime) might open.
 
@@ -294,7 +301,7 @@ FILE *fopen(const char *path, const char *mode) {
 gcc -shared -fPIC -o override_fopen.so override_fopen.c -ldl
 ```
 
-### 5.2 Python PoC — `poc.py`
+### 6.2 Python PoC — `poc.py`
 
 This script automates the entire attack: it writes the C source to a temporary directory, compiles the shared library, runs `DebugMe` with `LD_PRELOAD` set, and verifies that `Well done :)` appears in the output. It cleans up temporary files afterward.
 
@@ -459,3 +466,8 @@ if __name__ == "__main__":
 ```
 
 ---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
+

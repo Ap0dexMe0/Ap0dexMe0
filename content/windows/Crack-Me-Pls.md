@@ -1,27 +1,19 @@
 # CrackMePls.exe — Reverse Engineering Writeup
 
+## TL;DR
+
+- **Mechanism:** Password is derived from a hash of the username (not a static string).
+- **Artifacts:** PDB path exposes project **`crackme-lvl1`**; standard C++ iostream I/O.
+
 ---
 
-## Overview
-
-| Property | Value |
-|---|---|
-| **File** | `crackmepls.exe` |
-| **Type** | PE32+ executable (Windows x86-64 console) |
-| **Size** | 18,944 bytes |
-| **Compiler** | MSVC (Microsoft Visual C++) — Release build |
-| **PDB Path** | `C:\Users\Kryptos\source\repos\crackme-lvl1\x64\Release\crackme-lvl1.pdb` |
-| **Source Name** | `crackme-lvl1` |
-| **Author** | Kryptos |
-| **Architecture** | x86-64 (AMD64) |
-| **Linked Libraries** | MSVCP140.dll, VCRUNTIME140.dll, VCRUNTIME140_1.dll, KERNEL32.dll |
-| **Difficulty** | Beginner |
+## 1. Overview
 
 The binary is a console application compiled with MSVC in Release mode. Based on the PDB path embedded in the `.rdata` section, the original project was named **crackme-lvl1** and was created by a user named **Kryptos**. The program prompts for a username and password, computes a custom hash of the username, derives an expected password from that hash, and then compares the user-supplied password against the derived value. If they match, it prints "Access granted"; otherwise, "Access denied."
 
 ---
 
-## Initial Reconnaissance
+## 2. Initial reconnaissance
 
 ### File Identification
 
@@ -54,7 +46,7 @@ Additional standard MSVC C++ runtime strings are present (`bad allocation`, `str
 
 ---
 
-## Disassembly & Static Analysis
+## 3. Disassembly & static analysis
 
 ### Locating the Main Function
 
@@ -90,7 +82,7 @@ The main function performs the following operations in sequence:
 
 ---
 
-## String Initialization
+## 4. String initialization
 
 The program uses MSVC's Small String Optimization (SSO) for `std::string`. The SSO buffer size is 15 bytes (capacity `0xf`), stored inline in the `std::string` object. Two string objects are created:
 
@@ -109,7 +101,7 @@ The program uses MSVC's Small String Optimization (SSO) for `std::string`. The S
 
 ---
 
-## Input Prompting and Reading
+## 5. Input prompting and reading
 
 ### Print "User: " (0x1400012e5)
 
@@ -145,7 +137,7 @@ The program uses MSVC's Small String Optimization (SSO) for `std::string`. The S
 
 ---
 
-## Custom Hash Algorithm — Core Logic
+## 6. Custom hash algorithm — core logic
 
 This is the heart of the crackme. After reading both inputs, the program computes a custom hash of the username string at addresses **0x14000132D through 0x140001384**.
 
@@ -220,7 +212,7 @@ The hash function uses a combination of position-dependent multiplication (each 
 
 ---
 
-## Integer-to-String Conversion (0x140001610)
+## 7. Integer-to-string conversion (0x140001610)
 
 After computing the hash, the program calls a function at **0x140001610** to convert the signed 32-bit integer in `edx` to a decimal string representation stored in a `std::string`.
 
@@ -294,7 +286,7 @@ The function extracts decimal digits by repeatedly dividing by 10 using the comp
 
 ---
 
-## Password Comparison (0x140001394 – 0x1400013E7)
+## 8. Password comparison (0x140001394 – 0x1400013E7)
 
 After generating the expected password string, the program compares it with the user-supplied password:
 
@@ -335,7 +327,7 @@ The comparison follows the standard `std::string::operator==` implementation:
 
 ---
 
-## Result Output (0x14000142B – 0x14000143E)
+## 9. Result output (0x14000142B – 0x14000143E)
 
 ```asm
 14000142b:  test   %r14b,%r14b           ; check comparison result
@@ -349,7 +341,7 @@ If `r14b` is non-zero (comparison succeeded), the program loads the address of "
 
 ---
 
-## Complete Algorithm Summary
+## 10. Complete algorithm summary
 
 The program implements a simple challenge-response mechanism:
 
@@ -376,7 +368,7 @@ def crackme_password(username):
 
 ---
 
-## Solver / Keygen
+## 11. Solver / Keygen
 
 The following Python script acts as a complete keygen for this crackme. Given any username, it computes the correct password:
 
@@ -455,3 +447,7 @@ if __name__ == "__main__":
 **Password**: `2110634480`
 
 ---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.

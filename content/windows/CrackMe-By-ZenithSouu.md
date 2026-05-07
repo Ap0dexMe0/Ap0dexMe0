@@ -1,40 +1,20 @@
 # OMEGA CrackMe — Reverse Engineering Writeup
 
+## TL;DR
+
+- **Goal:** Recover the password that prints `[+] ACCESS GRANTED`.
+- **Notable:** Password check lives in a small **`.pdata_c`** region (`Check_Real`); many defenses target Windows sandboxes.
+- **Approach:** Linux-friendly static analysis (objdump, strings, Python) — Windows-only checks do not run under Linux.
+
 ---
 
-## 1. Introduction
-
-| Property | Value |
-|---|---|
-| **Binary** | `Crack Me.exe` |
-| **Architecture** | PE32+ executable (x86-64) |
-| **Subsystem** | Windows Console |
-| **Compiler** | Visual Studio 2022 (MSVC x64 Release) |
-| **Linked Libraries** | `crypt32.lib`, `ws2_32.lib`, `wininet.lib`, `iphlpapi.lib`, `KERNEL32.dll`, `USER32.dll`, `ADVAPI32.dll`, `SHELL32.dll`, `MSVCP140.dll`, `VCRUNTIME140.dll` |
-| **File Size** | 118,272 bytes (0x1CE00) |
-| **PDB Path** | `C:\Users\ZenithSouu\source\repos\Crack Me\x64\Release\Crack Me.pdb` |
-| **Objective** | Find the password that produces `[+] ACCESS GRANTED` |
+## 1. Overview
 
 The OMEGA CrackMe (2026 Edition) by **ZenithSouu** is a high-level reverse engineering challenge targeting Windows x64. It was designed to "neutralize 99% of automated analysis tools (VirusTotal, Filescan.io, CAPE) and make manual analysis (IDA/Ghidra) extremely painful." The challenge provides a password-protected binary, and the objective is to discover the secret password that triggers the `[+] ACCESS GRANTED` message.
 
 ---
 
-## 2. Challenge Overview
-
-| Attribute | Value |
-|---|---|
-| **Binary** | `Crack Me.exe` |
-| **Architecture** | PE32+ executable (x86-64) |
-| **Subsystem** | Windows Console |
-| **Compiler** | Visual Studio 2022 (MSVC x64 Release) |
-| **Linked Libraries** | `crypt32.lib`, `ws2_32.lib`, `wininet.lib`, `iphlpapi.lib`, `KERNEL32.dll`, `USER32.dll`, `ADVAPI32.dll`, `SHELL32.dll`, `MSVCP140.dll`, `VCRUNTIME140.dll` |
-| **File Size** | 118,272 bytes (0x1CE00) |
-| **PDB Path** | `C:\Users\ZenithSouu\source\repos\Crack Me\x64\Release\Crack Me.pdb` |
-| **Objective** | Find the password that produces `[+] ACCESS GRANTED` |
-
----
-
-## 3. Tooling & Environment
+## 2. Tooling & Environment
 
 | Tool | Purpose |
 |---|---|
@@ -49,7 +29,7 @@ The OMEGA CrackMe (2026 Edition) by **ZenithSouu** is a high-level reverse engin
 
 ---
 
-## 4. Initial Binary Analysis
+## 3. Initial Binary Analysis
 
 ### 4.1 File Identification
 
@@ -83,7 +63,7 @@ These appear to be test/debug artifacts, not related to the password mechanism.
 
 ---
 
-## 5. PE Section Architecture
+## 4. PE Section Architecture
 
 ```
 $ objdump -h "Crack Me.exe"
@@ -114,7 +94,7 @@ Idx Name          Size      VMA               File off  Algn
 
 ---
 
-## 6. Defense Mechanism Analysis
+## 5. Defense Mechanism Analysis
 
 The binary implements four interleaved defense layers as described in the challenge guide. Here is the analysis of each:
 
@@ -154,7 +134,7 @@ A separate monitoring thread continuously checks for:
 
 ---
 
-## 7. Bypassing the Anti-Analysis Layers
+## 6. Bypassing the Anti-Analysis Layers
 
 By performing **pure static analysis on Linux**, all four defense pillars were simultaneously neutralized:
 
@@ -172,7 +152,7 @@ By performing **pure static analysis on Linux**, all four defense pillars were s
 
 ---
 
-## 8. The `.pdata_c` Section - Deep Dive
+## 7. The `.pdata_c` Section - Deep Dive
 
 ### 8.1 Section Metadata
 
@@ -209,7 +189,7 @@ The first instruction `mov %rbx, 0x18(%rsp); push %rdi; sub $0x20, %rsp` is the 
 
 ---
 
-## 9. XOR Decryption Algorithm Reversal
+## 8. XOR Decryption Algorithm Reversal
 
 Both password functions in `.pdata_c` use the same decryption pattern to reveal the stored password at runtime:
 
@@ -252,7 +232,7 @@ The accumulator value is **always** `i*(i-1)/2` which is `<= 0xF4240` for `i < 1
 
 ---
 
-## 10. Password Recovery - Function 1 (`Check_Real`)
+## 9. Password Recovery - Function 1 (`Check_Real`)
 
 ### 10.1 Function Disassembly (Annotated)
 
@@ -449,7 +429,7 @@ movabs $0x85FF1D7FCFAB4173, %r10
 
 ---
 
-## 11. Password Recovery - Function 2 (The Decoy)
+## 10. Password Recovery - Function 2 (The Decoy)
 
 ### 11.1 Function Overview
 
@@ -504,7 +484,7 @@ input.length()                →  10
 
 ---
 
-## 12. Verification & Proof of Correctness
+## 11. Verification & Proof of Correctness
 
 ### 12.1 Consistency Checks
 
@@ -564,7 +544,7 @@ assert x != 0, "LCG must produce non-zero!"
 
 ---
 
-## 13. The Function Dispatch Mechanism
+## 12. The Function Dispatch Mechanism
 
 ### 13.1 Call Chain
 
@@ -614,7 +594,7 @@ This detects single-stepping in debuggers (IDA, x64dbg) where each instruction t
 
 ---
 
-## 14. AY_OBFUSCATE - String Encryption System
+## 13. AY_OBFUSCATE - String Encryption System
 
 ### 14.1 Overview
 
@@ -665,7 +645,7 @@ The strings protected include (but are not limited to):
 
 ---
 
-## 15. LCG Anti-Tamper Seed
+## 14. LCG Anti-Tamper Seed
 
 Function 1 includes a Linear Congruential Generator that serves as an anti-tamper mechanism:
 
@@ -687,7 +667,7 @@ Since the LCG seed `0x123456789ABCDEF0` is non-zero and the xorshift operation i
 
 ---
 
-## 16. Summary of Findings
+## 15. Summary of findings
 
 ### Password
 
@@ -738,3 +718,10 @@ The decoy function (`DEAD_BEEF_`) is a clever misdirection that would waste time
 ---
 
 *Write-up completed via static analysis on Linux. No Windows VM, no debugger, no dynamic execution required.*
+
+---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
+

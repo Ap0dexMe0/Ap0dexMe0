@@ -1,8 +1,20 @@
 # Yippie Ki Yay — Reverse Engineering Writeup
 
+
+## TL;DR
+
+- **Password:** Recovered from XOR with **`0xAA`** (hardcoded ciphertext in `.data`).
+- **Obfuscation:** TLS callback hides imports; bogus hash routines act as noise.
+
 ---
 
-## 1. Initial Reconnaissance
+## 1. Overview
+
+The binary shows **no obvious plaintext** password or prompts under naive `strings`. A **TLS callback** resolves `printf` / `scanf` / `strcmp` / `puts` at runtime, while status strings like **`ok`** / **`no`** are built via XOR. Analysis reduces to finding ciphertext blobs and the XOR key, then confirming against **`strcmp`**.
+
+---
+
+## 2. Initial reconnaissance
 
 Running `file` on the binary reveals a standard 64-bit Windows console executable compiled with GCC:
 
@@ -21,7 +33,7 @@ Running `strings` on the binary reveals no immediately visible password strings,
 
 ---
 
-## 2. Section Analysis
+## 3. Section analysis
 
 The binary contains the following sections:
 
@@ -42,7 +54,7 @@ The **`.tls`** section is particularly interesting — its presence indicates a 
 
 ---
 
-## 3. Anti-Analysis Techniques Identified
+## 4. Anti-analysis techniques identified
 
 This binary employs multiple layers of obfuscation to frustrate reverse engineering:
 
@@ -76,7 +88,7 @@ The hash chain operations (XOR, shift, multiply) are implemented as individual l
 
 ---
 
-## 4. String Decryption — XOR 0xAA
+## 5. String decryption — XOR 0xAA
 
 ### 4.1 Encrypted Data in `.data` Section
 
@@ -172,7 +184,7 @@ Decryption result:
 
 ---
 
-## 5. Dead-Code Hash Chain (Red Herring)
+## 6. Dead-code hash chain (red herring)
 
 The subroutine at `0x140001770` contains a deceptive hash chain computation **before** the actual XOR decryption loop. This is designed to confuse analysts into believing the password is derived from a complex cryptographic transformation.
 
@@ -208,7 +220,7 @@ The binary also defines the hash operations as separate leaf functions (likely a
 
 ---
 
-## 6. TLS Callback — Dynamic API Resolution
+## 7. TLS callback — dynamic API resolution
 
 ### 6.1 TLS Callback at `0x1400015E0`
 
@@ -254,7 +266,7 @@ This technique also means that the resolved function pointers are stored in writ
 
 ---
 
-## 7. Main Function — Full Reverse Engineering
+## 8. Main function — full reverse engineering
 
 ### 7.1 Function Entry (`0x140003420`)
 
@@ -333,7 +345,7 @@ The input is limited to 63 characters (plus null terminator = 64 bytes buffer).
 
 ---
 
-## 8. Password Validation Algorithm
+## 9. Password validation algorithm
 
 The complete validation logic in pseudocode:
 
@@ -379,7 +391,7 @@ int main() {
 
 ---
 
-## 9. Status Message Obfuscation
+## 10. Status message obfuscation
 
 The binary doesn't store "ok" and "no" as plaintext strings. Instead, it constructs them at runtime by XOR-ing word-sized values:
 
@@ -406,7 +418,7 @@ The values `0xC1C5` and `0xC5C4` are embedded within the encrypted "Yippie-Ki-Ya
 
 ---
 
-## 10. The Password
+## 11. The password
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -425,7 +437,7 @@ ok
 
 ---
 
-## 11. PoC / Keygen (Python)
+## 12. PoC / Keygen (Python)
 
 A standalone Python keygen that reverses all obfuscation layers:
 
@@ -467,7 +479,7 @@ Password: "Yippie-Ki-Yay"
 
 ---
 
-## 12. Conclusion
+## 13. Conclusion
 
 This crackme demonstrates several common but effective anti-reverse-engineering techniques:
 
@@ -485,3 +497,10 @@ Despite these layers, the core vulnerability is straightforward: the password is
 ---
 
 *Writeup generated through static analysis using objdump, pefile, and Capstone disassembly framework.*
+
+---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
+

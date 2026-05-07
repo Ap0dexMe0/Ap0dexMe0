@@ -1,25 +1,22 @@
 # VM Rust — Reverse Engineering Writeup
 
+
+## TL;DR
+
+- **Protection:** Six stacked layers (anti-debug, obfuscated APIs, VM, `.text` integrity, …).
+- **Focus:** PE/Rust metadata recon → isolate VM dispatcher → recover semantics sufficient for key or patch strategy.
+
 ---
 
 ## 1. Overview
-
-| Attribute         | Value                                                      |
-|-------------------|------------------------------------------------------------|
-| File              | `vm-rust.exe`                                              |
-| Type              | PE32+ executable (console), x86-64                          |
-| Size              | ~1.4 MB                                                    |
-| Compiler          | Rust stable (rustc `4a4ef493e3a1488c6e321570238084b38948f6db`), MSVC toolchain |
-| Subsystem         | Windows CUI                                               |
-| Protection        | Anti-debug, API obfuscation, string obfuscation, VM-based validation, .text integrity check |
 
 The crackme is structured around **six layers of protection** that must be understood and defeated to either recover the internal key or produce a patched binary that always succeeds.
 
 ---
 
-## 2. Binary Structure
+## 2. Binary structure
 
-### 2.1 PE Layout
+### 2.1 PE layout
 
 ```
 Section   VMA              VSize      RawOffset  RawSize
@@ -30,7 +27,7 @@ Section   VMA              VSize      RawOffset  RawSize
 .reloc    0x140016B000     0x264      0x168200   0x400
 ```
 
-### 2.2 Source Modules (embedded in .rdata debug info)
+### 2.2 Source modules (embedded in .rdata debug info)
 
 The binary preserves Rust source paths in its debug metadata:
 
@@ -42,7 +39,7 @@ The binary preserves Rust source paths in its debug metadata:
 | `src\vm3\interpreter.rs` | Third VM interpreter (3 218 bytes)  |
 | `src\validate\model.rs`  | Validation model / key comparison   |
 
-### 2.3 Notable Embedded Constants
+### 2.3 Notable embedded constants
 
 ```
 CRACKME_LIVE_CONTEXT   — panic-context marker used as validation token
@@ -56,9 +53,9 @@ CRACKME_LIVE_CONTEXT   — panic-context marker used as validation token
 
 ---
 
-## 3. Protection Mechanisms (Layer by Layer)
+## 3. Protection mechanisms (layer by layer)
 
-### 3.1 Anti-Debugging
+### 3.1 Anti-debugging
 
 **Location:** CRT initialization at VMA `0x14001EE08`
 
@@ -75,7 +72,7 @@ If a debugger is detected, the CRT invokes `__fastfail` (via `int 0x29`), which 
 
 **Bypass:** Patch the `je` at `0x14001EF38` to an unconditional `jmp` (`74 08` → `EB 08`), or simply launch the binary without a debugger attached.
 
-### 3.2 API Obfuscation (PEB Walking)
+### 3.2 API obfuscation (PEB walking)
 
 **Location:** `0x1400069E0`
 
@@ -98,7 +95,7 @@ The two resolved APIs are identified by their hashes:
 
 This makes static import analysis less useful, as the actual API calls are indirect through function pointers resolved at runtime.
 
-### 3.3 .text Section Integrity Check
+### 3.3 .text section integrity check
 
 **Location:** `0x140006740`
 
@@ -111,7 +108,7 @@ Before performing key derivation, the binary verifies that its own `.text` secti
 
 If the integrity check fails, different magic constants are used in subsequent hash operations, causing the derived key to be incorrect and the validation to fail. This means **simple patching of the `.text` section will break the key derivation** — the patches must be applied outside the hashed region or the key-check comparison must also be patched.
 
-### 3.4 Key Derivation (The Core Protection)
+### 3.4 Key derivation (core protection)
 
 **Location:** `0x140005FD0`
 
@@ -190,7 +187,7 @@ key[2] = 0x2D5CE0BD
 key[3] = 0xE308E646
 ```
 
-### 3.5 String Obfuscation
+### 3.5 String obfuscation
 
 **Location:** `0x14001AE50`
 
@@ -203,7 +200,7 @@ Strings in the binary are obfuscated using the `CRACKME_LIVE_CONTEXT` (20 bytes)
 
 The presence of `0xDEADBEEF` and `0xCAFEBABE` as sentinel values in the calling code confirms this is an integrity-checked string decryption mechanism.
 
-### 3.6 VM-Based Validation
+### 3.6 VM-based validation
 
 **Location:** Three interpreters at:
 - VM1: `0x140006DB0` (13,470 bytes — the largest function)
@@ -230,7 +227,7 @@ else:                   // single-byte opcode
 
 ---
 
-## 4. Key Validation Flow
+## 4. Key validation flow
 
 **Location:** `0x14000964B`
 
@@ -258,7 +255,7 @@ The validation first generates the key, then XORs each DWORD with the correspond
 
 ---
 
-## 5. Encrypted Data Blocks
+## 5. Encrypted data blocks
 
 Several blocks of encrypted data are embedded in the `.rdata` section:
 
@@ -273,9 +270,9 @@ These blocks appear to use XOR-based encryption with the derived key. The exact 
 
 ---
 
-## 6. Solution Approaches
+## 6. Solution approaches
 
-### 6.1 Key Recovery (Static Analysis)
+### 6.1 Key recovery (static analysis)
 
 The key can be recovered purely from static analysis by reimplementing the key derivation algorithm. Since the key is derived solely from the `.text` section bytes, no execution is needed:
 
@@ -289,7 +286,7 @@ The key can be recovered purely from static analysis by reimplementing the key d
 
 This approach is implemented in the PoC script (`poc_vm_rust.py`).
 
-### 6.2 Binary Patching
+### 6.2 Binary patching
 
 Two patches can bypass the protection:
 
@@ -300,13 +297,13 @@ Two patches can bypass the protection:
 
 **Note:** Patch 2 is located within the `.text` section. If the binary's integrity check were fully enforced (not just for the two specific functions it checks), patching `.text` would cause the hash derivation to produce incorrect values. However, in this binary, the integrity check only verifies that three specific addresses fall within `.text`'s virtual range — it does not recompute the hash after loading. Therefore, the patches work.
 
-### 6.3 Combined Approach
+### 6.3 Combined approach
 
 The most robust approach combines both: recover the key to understand the protection logic, then apply targeted patches to create a version of the binary that accepts any input (or specifically, the correct key/flag).
 
 ---
 
-## 7. Lessons Learned
+## 7. Lessons learned
 
 1. **Rust binaries retain extensive metadata.** Source file paths (`src\key\mod.rs`, `src\vm1\interpreter.rs`, etc.) are embedded in the `.rdata` section and serve as invaluable signposts for reverse engineers.
 
@@ -320,7 +317,7 @@ The most robust approach combines both: recover the key to understand the protec
 
 ---
 
-## 8. PoC Script
+## 8. PoC script
 
 The complete PoC is provided in [poc_vm_rust.py](/static/poc/poc_vm_rust.py). It:
 
@@ -342,3 +339,10 @@ python3 poc_vm_rust.py vm-rust.exe vm-rust_patched.exe
 Derived 128-bit key:  8e3cdf0740b74210bde05c2d46e608e3
 DWORDs: 0x07df3c8e, 0x1042b740, 0x2d5ce0bd, 0xe308e646
 ```
+
+---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
+

@@ -1,8 +1,4 @@
-# KeygenMe_3_SWD — Complete Reverse Engineering Writeup
-
-This document is a full reconstruction of **KeygenMe_3_SWD.exe**: how the console UI collects input, how the **secret code** and **verification PIN** are validated, and how to reproduce both offline. All logic was recovered from **Ghidra** decompilation and disassembly (PE64, MSVC, C++ `std::iostream`). The accompanying key generator is **`content/poc/KeygenMe_3_SWD.py`**.
-
----
+# KeygenMe_3_SWD — Reverse Engineering Writeup
 
 ## TL;DR
 
@@ -18,15 +14,9 @@ The PIN check XORs two 32-bit words derived from **`FUN_1400028d0`**. That trans
 
 ---
 
-## 1. Target summary
+## 1. Overview
 
-| Property | Value |
-|----------|--------|
-| File | `KeygenMe_3_SWD.exe` |
-| Format | PE32+ executable (console subsystem) |
-| Architecture | x86-64 |
-| Runtime | Windows; links **MSVCP140** / **VCRUNTIME140** (`std::cin` / `std::cout`) |
-| Objective | Recover algorithms and build a working **keygen** (username → secret + PIN) |
+This writeup reconstructs how **`FUN_140002bd0`** drives the UI, how **`FUN_140001ec0`** / **`FUN_140002100`** validate the secret against **`toupper(username)`**, and how **`FUN_1400025a0`** plus **`FUN_140002910`** / **`FUN_1400028d0`** tie the PIN to that hash—including **signed x86 `IMUL`** in the avalanche (§8.1), which unsigned-only models get wrong.
 
 Notable **`.rdata`** strings include banner lines such as `KeygenMe No 3`, prompts **`Username:`**, **`Secret code:`**, **`Verification PIN:`**, and ANSI sequences like **`[2K\r`** used to redraw prompts after invalid input.
 
@@ -249,11 +239,11 @@ So the **verification PIN is exactly the hash output** **`H`**, printed as decim
 Given **username** **`u`** satisfying length rules:
 
 1. **`U = toupper(u)`** (ASCII uppercase).
-2. Compute **`S`, `X`, `P`** from **`U`** as in section 6.1.
-3. Compute **`A`, `B`, `C`** as in section 6.2.
+2. Compute **`S`, `X`, `P`** from **`U`** as in §6.1.
+3. Compute **`A`, `B`, `C`** as in §6.2.
 4. **`secret = encode36(A,4) + "-" + encode36(B,5) + "-" + encode36(C,3)`**.
-5. Build **`blob`** as in section 8 (same **`toupper`** rule + length XOR **`0x5A`** + **`secret`**).
-6. Run the **`a`/`b`** loop and final avalanche using **`signed IMUL`** for the two constants.
+5. Build **`blob`** as in §8 (same **`toupper`** rule + length XOR **`0x5A`** + **`secret`**).
+6. Run the **`a`/`b`** loop and final avalanche (**§8.1**, **`signed IMUL`** for the two constants).
 7. **`pin = H`** as returned (**`& 0x7FFFFFFF`**).
 
 ---
@@ -305,3 +295,9 @@ It prints **Username**, **Secret code**, and **Verification PIN** for the suppli
 ## 14. Conclusion
 
 **KeygenMe_3_SWD** ties three inputs together: the **secret** is a deterministic **base-36** triple derived from **uppercase username statistics**; the **PIN** is a **31-bit hash** of **`upper(username) ∥ chr(len(secret) XOR 0x5A) ∥ secret`** with a specific **x86 signed-multiply** finale. Once those pieces are modeled faithfully—especially **`IMUL`**—the challenge reduces to a short Python script and passes the binary’s **`PASS`**/**`FAIL`** gates without patching.
+
+---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer. Keygen script: `content/poc/KeygenMe_3_SWD.py`.

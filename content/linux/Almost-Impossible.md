@@ -2,15 +2,15 @@
 
 ---
 
-## 1. Overview
+## TL;DR
 
-| Property | Value |
-|---|---|
-| **Binary** | `almost` |
-| **Type** | ELF 64-bit LSB PIE executable, x86-64, stripped |
-| **Size** | 166,320 bytes |
-| **Title** | AI - Almost Impossible |
-| **Purpose** | X11 GUI application that reads a PNG image containing a QR code, validates the QR payload against an internally generated cryptographic target |
+- **Goal:** Supply a PNG whose QR payload matches a per-run EC target; two independent checks must pass.
+- **Stack:** X11, libpng, zbar, OpenSSL EC — target is ~25 bits; brute force on the secret space is practical.
+- **Writeup focus:** How the target is generated, how validation works, and why the search space stays small.
+
+---
+
+## 1. Overview
 
 The binary presents itself as an "almost impossible" challenge - it generates a fresh cryptographic target on every launch using randomness, displays encrypted/encoded target data, and requires the user to provide a PNG artifact (image with QR code) containing the exact secret that satisfies two independent cryptographic checks. The catch? The secret space is deliberately constrained to 25 bits, making brute-force search entirely feasible - the challenge is *almost* impossible, but not quite.
 
@@ -582,4 +582,10 @@ The PoC generates a PNG image [poc_artifact](/static/img/poc_artifact.png) conta
 
 | [poc_artifact](/static/img/poc_artifact.png) | QR code PNG with valid payload (→ Access granted)    |
 | [bad_artifact](/static/img/bad_artifact.png) | QR code PNG with wrong scalar (→ Access denied)      |
+
 ---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
+

@@ -1,23 +1,24 @@
 # Brain-Fuck — Reverse Engineering Writeup
 
----
-
-## Challenge Overview
-
-| Property | Value |
-|----------|-------|
-| **File** | `a.out` |
-| **Type** | ELF 64-bit LSB PIE executable, x86-64 |
-| **Size** | ~160KB main function (0x2713e bytes, 32066 instructions) |
-| **Stripped** | No (contains debug info, symbol names) |
-| **Objective** | Find the correct password |
-
-**Flag (Password):** `bruh wtf`  
-**Success Output:** `you made it hero`
+This writeup documents a large **x86-64 Linux** binary whose `main` is a massive obfuscated **Brainfuck**-style interpreter: the password check is hidden in tens of thousands of generated instructions. Analysis uses disassembly and pattern recognition (stack layout, `usleep`/`getpid` noise, tape model).
 
 ---
 
-## Initial Reconnaissance
+## TL;DR
+
+- **Flag (password):** `bruh wtf`
+- **Success output:** `you made it hero`
+- **Core idea:** 30k-cell tape + data pointer; password read as 8 characters; real logic buried in obfuscation.
+
+---
+
+## 1. Overview
+
+The program reads **eight** characters from stdin and prints nothing on failure; on success it emits **`you made it hero`**. There are almost no useful plaintext strings — behavior must be recovered from the interpreter-shaped control flow and tape layout in `main`.
+
+---
+
+## 2. Initial reconnaissance
 
 ### File Analysis
 
@@ -48,7 +49,7 @@ When run with arbitrary input, the program silently exits with code 0 and no out
 
 ---
 
-## Deep Reverse Engineering
+## 3. Deep reverse engineering
 
 ### Step 1: Disassembly Overview
 
@@ -235,3 +236,7 @@ you made it hero
 The program outputs `you made it hero` confirming the password is correct.
 
 ---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.

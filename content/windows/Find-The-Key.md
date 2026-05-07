@@ -1,22 +1,20 @@
-# ActiveMe.exe — Reverse Engineering Writeup
+# Find The Key (ActivateMe.exe) — Reverse Engineering Writeup
+
+## TL;DR
+
+- **Gate:** Magic Number must match `^[A-Z]{2}-[A-Z]{2}$`.
+- **Core:** XOR-derived keystream from magic + static payload (see §6–§9).
+- **Framing:** Document assumes **static-only** reconnaissance (no debugger).
 
 ---
 
-## 1. Challenge Overview
-
-**Target:** `ActivateMe.exe`
-
-**File Type:** PE32+ Windows x86-64 Console Application
-
-**Objective:** Recover the hidden Activation Key embedded within the binary
-
-**Constraints:** Static analysis only (no runtime debugging assumed)
+## 1. Overview
 
 The binary presents itself as a simple "activation" program that asks the user for a Magic Number and an Activation Key. If both inputs are correct, the program proceeds to an unspecified success state; if either is wrong, it prints `Try Again:` and loops. The challenge is to determine what the correct Activation Key is without access to the original source code.
 
 ---
 
-## 2. Target Analysis - PE File Structure
+## 2. Target analysis — PE file structure
 
 ### 2.1 File Identification
 
@@ -71,7 +69,7 @@ The program entry point is located at `0x140001f60`. In PE32+ executables, all a
 
 ---
 
-## 3. Initial Reconnaissance
+## 3. Initial reconnaissance
 
 ### 3.1 Strings Extraction
 
@@ -121,7 +119,7 @@ Based on the initial reconnaissance, several hypotheses were formed:
 
 ---
 
-## 4. Deep Dive: String Analysis
+## 4. Deep dive: string analysis
 
 ### 4.1 Regex Pattern Breakdown
 
@@ -186,7 +184,7 @@ However, this partial decode is not immediately meaningful on its own. The prefi
 
 ---
 
-## 5. Reverse Engineering Methodology
+## 5. Reverse engineering methodology
 
 ### 5.1 Approach Selection
 
@@ -241,7 +239,7 @@ The analysis followed a systematic top-down approach:
 
 ---
 
-## 6. Program Logic Analysis
+## 6. Program logic analysis
 
 ### 6.1 High-Level Control Flow
 
@@ -407,7 +405,7 @@ Understanding the memory layout during execution helps clarify the data flow:
 
 ---
 
-## 7. Cryptographic Primitive: XOR Cipher
+## 7. Cryptographic primitive: XOR cipher
 
 ### 7.1 How XOR Encryption Works
 
@@ -478,7 +476,7 @@ In practice, for the XOR to produce valid Base64 output, `K` must be a small pos
 
 ---
 
-## 8. Payload Assembly & XOR Decryption
+## 8. Payload assembly & XOR decryption
 
 ### 8.1 Assembly of the Full Encoded String
 
@@ -544,7 +542,7 @@ This is NOT a coincidence. The original payload was constructed by Base64-encodi
 
 ---
 
-## 9. Base64 Decoding
+## 9. Base64 decoding
 
 ### 9.1 Base64 Encoding Primer
 
@@ -667,7 +665,7 @@ Therefore, the Activation Key that the program compares against the user input i
 
 ---
 
-## 10. Key Derivation: Magic Number to XOR Key
+## 10. Key derivation: Magic Number to XOR key
 
 ### 10.1 The Derivation Formula
 
@@ -733,7 +731,7 @@ This gives **23 valid pairs** for positions 1 and 3. Since positions 0 and 4 can
 
 ---
 
-## 11. Alternative Approaches
+## 11. Alternative approaches
 
 ### 11.1 XOR Brute-Force (Without Full RE)
 
@@ -832,7 +830,7 @@ Other valid Magic Numbers include `AB-DE`, `AC-DF`, `ZZ-DC` (where `D - A = 3`),
 
 ---
 
-## 13. Full Recreation Scripts
+## 13. Full recreation scripts
 
 ### 13.1 Complete Solver (Python)
 
@@ -977,3 +975,9 @@ for k in range(256):
 print("=" * 70)
 print("Only K=3 produces both valid Base64 AND fully printable decoded output.")
 ```
+
+---
+
+## Disclaimer
+
+For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
