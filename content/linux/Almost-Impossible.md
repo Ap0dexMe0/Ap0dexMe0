@@ -1,4 +1,4 @@
-# "Almost" (AI - Almost Impossible) - Reverse Engineering Writeup
+# Almost Impossible — Reverse Engineering Writeup
 
 ---
 

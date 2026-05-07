@@ -1,4 +1,4 @@
-# vm-rust.exe — Reverse Engineering Write-Up
+# VM Rust — Reverse Engineering Writeup
 
 ---
 

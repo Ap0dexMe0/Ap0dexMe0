@@ -1,4 +1,4 @@
-# OMEGA CrackMe (2026 Edition) - Reverse Engineering Write-up
+# OMEGA CrackMe — Reverse Engineering Writeup
 
 ---
 

@@ -1,4 +1,4 @@
-# CTF Writeup: a.out — Brainfuck in Disguise
+# Brain-Fuck — Reverse Engineering Writeup
 
 ---
 

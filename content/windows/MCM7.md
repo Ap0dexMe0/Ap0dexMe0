@@ -1,4 +1,4 @@
-# MCM v7.0 — Reverse Engineering Write-Up
+# MCM v7.0 — Reverse Engineering Writeup
 
 **Target:** CrackMe_packed.exe  
 **Author:** @pwn.by (Discord) — [pwned.space](https://pwned.space/)  

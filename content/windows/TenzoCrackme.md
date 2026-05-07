@@ -1,4 +1,4 @@
-# TenzoCrackme — Writeup
+# TenzoCrackme — Reverse Engineering Writeup
 
 **Target:** `TenzoCrackme.exe` (PE32+, x86-64, console)
 **Goal:** find the one valid password that triggers the success branch.
