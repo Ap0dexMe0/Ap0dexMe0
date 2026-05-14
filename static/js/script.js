@@ -273,20 +273,57 @@
     function renderLoading(item) {
         mainContent.innerHTML = `
             <header class="writeup-header">
-                <div class="target-icon">📄 Loading <strong>${escapeHtml(item.title)}</strong></div>
                 <h1>${escapeHtml(item.title)}</h1>
-                <div class="writeup-meta">
-                    <span>📁 ${escapeHtml(item.category)}</span>
-                    <span>🧾 ${escapeHtml(item.file)}</span>
+                <div class="re-info-strip" style="margin-top:0.5rem;">
+                    <div class="re-info-row">
+                        <span class="re-info-key">category</span>
+                        <span class="re-info-sep">→</span>
+                        <span class="re-info-val">${escapeHtml(item.category)}</span>
+                    </div>
+                    <div class="re-info-row">
+                        <span class="re-info-key">source</span>
+                        <span class="re-info-sep">→</span>
+                        <span class="re-info-val">${escapeHtml(item.file)}</span>
+                    </div>
                 </div>
             </header>
             <section class="section">
                 <div class="section-body">
-                    <p>Loading markdown content from <code>${escapeHtml(item.path)}</code>...</p>
+                    <p>Loading <code>${escapeHtml(item.path)}</code>…</p>
                 </div>
             </section>
         `;
         triggerMainContentEnter();
+    }
+
+    function renderWriteupHeader(item, title) {
+        return `
+            <header class="writeup-header">
+                <h1>${inlineMarkdown(title)}</h1>
+                <div class="re-info-strip" style="margin-top:0.5rem;">
+                    <div class="re-info-row">
+                        <span class="re-info-key">category</span>
+                        <span class="re-info-sep">→</span>
+                        <span class="re-info-val">${escapeHtml(item.category)}</span>
+                    </div>
+                    <div class="re-info-row">
+                        <span class="re-info-key">source</span>
+                        <span class="re-info-sep">→</span>
+                        <span class="re-info-val">${escapeHtml(item.file)}</span>
+                    </div>
+                    <div class="re-info-row">
+                        <span class="re-info-key">path</span>
+                        <span class="re-info-sep">→</span>
+                        <span class="re-info-val">content/${escapeHtml(item.category)}/${escapeHtml(item.file)}</span>
+                    </div>
+                    <div class="re-info-row">
+                        <span class="re-info-key">tags</span>
+                        <span class="re-info-sep">→</span>
+                        <span class="re-info-val">reverse-engineering · ${escapeHtml(item.category)} · writeup</span>
+                    </div>
+                </div>
+            </header>
+        `;
     }
 
     async function loadWriteup(path) {
@@ -306,30 +343,14 @@
 
             document.title = `${title} — Ap0dexMe0`;
             mainContent.innerHTML = `
-                <header class="writeup-header">
-                    <div class="target-icon">
-                        📄 Source: <strong>${escapeHtml(item.file)}</strong>
-                        <span class="arch-badge">${escapeHtml(item.category)}</span>
-                    </div>
-                    <h1>${inlineMarkdown(title)}</h1>
-                    <div class="writeup-meta">
-                        <span>📁 ${escapeHtml(item.category)}</span>
-                        <span>🧾 Markdown</span>
-                        <span>🔗 content/${escapeHtml(item.category)}/${escapeHtml(item.file)}</span>
-                    </div>
-                    <div class="tag-list">
-                        <span class="tag">#reverse-engineering</span>
-                        <span class="tag">#${escapeHtml(item.category)}</span>
-                        <span class="tag">#writeup</span>
-                    </div>
-                </header>
+                ${renderWriteupHeader(item, title)}
                 <article class="section markdown-viewer">
                     <div class="section-body markdown-body">
                         ${renderMarkdown(markdown.replace(/^#\s+.+\n?/, ''))}
                     </div>
                 </article>
                 <footer class="writeup-footer">
-                    <p>Ap0dexMe0 / writeups &copy; 2026 — For educational purposes only.</p>
+                    <p><strong>Disclaimer</strong> — For educational purposes only. Analyze only software you are authorized to reverse engineer.</p>
                 </footer>
             `;
             highlightRenderedCode();
@@ -362,7 +383,9 @@
             writeups = flattenManifest(manifest);
             renderSidebar();
             bindSidebarAccordion();
-            await loadWriteup(getHashPath() || (writeups[0] && writeups[0].hash));
+
+            const hashPath = getHashPath();
+            await loadWriteup(hashPath || (writeups[0] && writeups[0].hash));
         } catch (error) {
             writeupList.innerHTML = '<li class="toc-manifest-error">Unable to load manifest.</li>';
             mainContent.innerHTML = `
@@ -383,7 +406,7 @@
     document.addEventListener('click', event => {
         const copyButton = event.target.closest('.copy-btn');
         if (copyButton) {
-            const targetId = copyButton.getAttribute('data-copy-target') || copyButton.getAttribute('data-target');
+            const targetId = copyButton.getAttribute('data-copy-target');
             const codeBlock = document.getElementById(targetId);
             if (!codeBlock) return;
 
@@ -394,6 +417,9 @@
                     copyButton.textContent = '📋 Copy';
                     copyButton.classList.remove('copied');
                 }, 1800);
+            }).catch(() => {
+                copyButton.textContent = '❌ Failed';
+                setTimeout(() => { copyButton.textContent = '📋 Copy'; }, 1500);
             });
         }
     });

