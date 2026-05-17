@@ -721,7 +721,3 @@ The decoy function (`DEAD_BEEF_`) is a clever misdirection that would waste time
 
 ---
 
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
-

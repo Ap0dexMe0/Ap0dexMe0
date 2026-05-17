@@ -267,7 +267,3 @@ Congrats. You found the meatball. Here's your flag. Respect.
 
 ---
 
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
-

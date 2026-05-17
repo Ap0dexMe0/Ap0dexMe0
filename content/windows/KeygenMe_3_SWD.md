@@ -297,7 +297,3 @@ It prints **Username**, **Secret code**, and **Verification PIN** for the suppli
 **KeygenMe_3_SWD** ties three inputs together: the **secret** is a deterministic **base-36** triple derived from **uppercase username statistics**; the **PIN** is a **31-bit hash** of **`upper(username) ∥ chr(len(secret) XOR 0x5A) ∥ secret`** with a specific **x86 signed-multiply** finale. Once those pieces are modeled faithfully—especially **`IMUL`**—the challenge reduces to a short Python script and passes the binary’s **`PASS`**/**`FAIL`** gates without patching.
 
 ---
-
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer. Keygen script: `content/poc/KeygenMe_3_SWD.py`.

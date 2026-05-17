@@ -300,7 +300,3 @@ def generate_key(username: str) -> str:
 
 ---
 
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
-

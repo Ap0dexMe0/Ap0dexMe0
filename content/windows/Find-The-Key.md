@@ -977,7 +977,3 @@ print("Only K=3 produces both valid Base64 AND fully printable decoded output.")
 ```
 
 ---
-
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.

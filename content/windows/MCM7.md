@@ -413,7 +413,3 @@ savedata "decrypted_inner.exe", 0x1403AD000, 0x66E00
 
 ---
 
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
-

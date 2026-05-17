@@ -232,7 +232,3 @@ you made it hero
 The program outputs `you made it hero` confirming the password is correct.
 
 ---
-
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.

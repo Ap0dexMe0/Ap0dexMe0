@@ -500,7 +500,3 @@ Despite these layers, the core vulnerability is straightforward: the password is
 
 ---
 
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
-

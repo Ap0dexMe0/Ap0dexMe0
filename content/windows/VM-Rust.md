@@ -342,7 +342,3 @@ DWORDs: 0x07df3c8e, 0x1042b740, 0x2d5ce0bd, 0xe308e646
 
 ---
 
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
-

@@ -325,7 +325,3 @@ SUCCESS — password is: wowyoufoundit
 
 ---
 
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
-

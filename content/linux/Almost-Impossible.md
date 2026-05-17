@@ -582,8 +582,3 @@ The PoC generates a PNG image [poc_artifact](/static/img/poc_artifact.png) conta
 | [bad_artifact](/static/img/bad_artifact.png) | QR code PNG with wrong scalar (→ Access denied)      |
 
 ---
-
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
-

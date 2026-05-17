@@ -447,7 +447,3 @@ if __name__ == "__main__":
 **Password**: `2110634480`
 
 ---
-
-## Disclaimer
-
-For **educational purposes only**. Analyze only software you are authorized to reverse engineer.
