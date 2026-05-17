@@ -349,9 +349,6 @@
                         ${renderMarkdown(markdown.replace(/^#\s+.+\n?/, ''))}
                     </div>
                 </article>
-                <footer class="writeup-footer">
-                    <p><strong>Disclaimer</strong> — For educational purposes only. Analyze only software you are authorized to reverse engineer.</p>
-                </footer>
             `;
             highlightRenderedCode();
             triggerMainContentEnter();
